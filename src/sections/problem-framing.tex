@@ -1,0 +1,14 @@
+\section{Problem Framing \& Core Principles}
+
+\subsection*{Q: What is the difference between MLE and MAP estimation?}
+\textbf{MLE} maximizes the likelihood of observing the given data. \textbf{MAP} includes priors to maximize posterior probability.
+
+\subsection*{Q: What is the difference between generative and discriminative models?}
+\textbf{Generative models} model the joint probability, \(P(x, y)\), to generate data. \textbf{Discriminative models} the conditional probability, \(P(y|x)\), to distinguish classes.
+
+\subsection*{Q: What is the bias-variance tradeoff in machine learning?}
+\begin{itemize}
+	\item \textbf{Bias} refers to the model's specificity, introduced by approximating a complex problem using a simplified model. High bias can cause a model to miss relevant patterns in the data, leading to underfitting.
+	\item \textbf{Variance} refers to the model's sensitivity (recall) to small fluctuations in the training data. A high-variance model captures noise along with the signal, leading to overfitting.
+	\item A model with high bias and low variance is too simple to capture the underlying structure of the data (underfitting), whereas a model with low bias and high variance captures noise and fails to generalize well (overfitting).
+\end{itemize}

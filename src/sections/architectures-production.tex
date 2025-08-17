@@ -1,0 +1,107 @@
+\section{Architectures, Adaptation \& Production}
+
+\subsection*{Q: How do Transformers differ from traditional Seq2Seq models?}
+\textbf{Transformers} use self-attention instead of recurrence, enabling parallelism and better modeling of long-range dependencies by self-attention and positional embeddings.
+
+\subsection*{Q: What are positional embeddings and why are they used in Transformers?}
+\textbf{Positional embeddings} encode token positions, which allows the transformer to maintain sequence order since self-attention lacks inherently order awareness, otherwise.
+
+\subsection*{Q: What is Byte Pair Encoding (BPE) and why is it used?}
+\textbf{Byte Pair Encoding (BPE)} is a subword tokenization algorithm that decomposes text into units that strike a balance between individual characters and complete words. It begins by treating each character as a separate token and then iteratively merges the most frequent adjacent pairs of tokens into new combined tokens. This approach improves model performance by:
+\begin{itemize}
+	\item reducing the overall vocabulary size
+	\item handling out-of-vocabulary words effectively
+	\item improving tokenization efficiency
+\end{itemize}
+
+BPE is widely used in modern language models such as GPT and RoBERTa due to its ability to efficiently tokenize large corpora while preserving useful linguistic structures.
+
+\subsection*{Q: What are the common decoding techniques used in large language models (LLMs)?}
+Several decoding techniques are used to generate text from large language models, each with different trade-offs between determinism, diversity, and coherence:
+
+\begin{itemize}
+	\item \textbf{Greedy Decoding}: This method selects the token with the highest probability at each step. While it is fast and deterministic, it often produces repetitive or suboptimal outputs because it doesn't explore alternative paths.
+	\item \textbf{Beam Search}: Beam search keeps track of the top \(k\) most probable sequences (beams) at each decoding step and expands them in parallel. It balances quality and computation by considering multiple candidates, but it can still produce generic responses and is less diverse than sampling-based methods.
+	\item \textbf{Top-\(k\) Sampling}: Instead of always choosing the most likely token, top-\(k\) sampling samples from the top \(k\) most probable next tokens. This introduces randomness and improves diversity, making outputs more creative and less deterministic.
+	\item \textbf{Top-\(p\) Sampling (Nucleus Sampling)}: This method selects from the smallest possible set of tokens whose cumulative probability exceeds a threshold \(p\) (e.g., 0.9). It adapts the candidate pool dynamically and often results in more coherent yet diverse outputs compared to top-\(k\) sampling.
+	\item \textbf{Temperature Scaling}: Although not a decoding method itself, temperature is a parameter often used during sampling to control randomness. A lower temperature makes the model more confident (peaky distributions), while a higher temperature makes it more random and exploratory.
+\end{itemize}
+
+\subsection*{Q: What is MMOE and what are some other multi-objective learning algorithms?}
+\begin{itemize}
+	\item \textbf{MMOE (Multi-gate Mixture-of-Experts)} is a neural network architecture designed for multi-task learning, where a single model simultaneously learns to perform multiple related tasks. MMOE consists of:
+	      \begin{itemize}
+		      \item A set of shared \textbf{experts} (typically fully connected networks) that learn general-purpose representations.
+		      \item A set of task-specific \textbf{gating networks} that learn how to combine the outputs of the shared experts differently for each task.
+	      \end{itemize}
+	      This design allows the model to balance shared and task-specific information, improving performance and reducing negative transfer between tasks.
+
+	\item \textbf{Cross-Stitch Networks}: These networks allow linear combinations of activations from task-specific models. The model learns how much information to share at each layer between tasks by learning cross-stitch units.
+
+	\item \textbf{Shared Bottom + Task-Specific Heads}: This is a simple and widely used approach where early layers are shared among tasks to extract common features, while the top layers (heads) are task-specific to capture task-dependent patterns.
+
+	\item \textbf{PLE (Progressive Layered Extraction)}: PLE introduces shared and task-specific experts at multiple levels and progressively separates representations using gating networks, enhancing performance in complex multi-task scenarios.
+
+	\item \textbf{PCGrad (Projected Gradient Descent)}: PCGrad is an optimization-based method for multi-objective learning. It resolves gradient conflicts between tasks by projecting conflicting gradients onto each other's normal planes, avoiding destructive interference during learning.
+
+	\item \textbf{GradNorm}: This algorithm dynamically balances the training of multiple tasks by adjusting the gradients' magnitudes to ensure that all tasks train at a similar rate, preventing task dominance.
+
+\end{itemize}
+
+Multi-objective and multi-task learning algorithms are especially useful when tasks are related and can benefit from shared representations, improving generalization and model efficiency.
+
+\subsection*{Q: What is PEFT (Parameter-Efficient Fine-Tuning)?}
+\textbf{PEFT} fine-tunes only a subset of parameters, reducing memory and compute costs while preserving performance.
+
+\subsection*{Q: What is LoRA and how does it work?}
+\textbf{LoRA} adds low-rank trainable matrices to frozen layers, reducing the number of trainable parameters for speed and memory-efficiency.
+
+\subsection*{Q: What is QLoRA and why is it useful?}
+\textbf{QLoRA} applies LoRA to the quantized models (e.g., 4-bit), enabling fine-tuning of large models on limited hardware. Once all the training is done, the original weights will be de-quantized.
+
+\subsection*{Q: What is collaborative filtering and what are its types?}
+\textbf{Collaborative filtering} recommends items based on user/item similarity. Types include user-based, item-based, and matrix factorization.
+
+\subsection*{Q: What are the limitations of collaborative filtering?}
+\begin{itemize}
+	\item \textbf{Cold-start problem}: Collaborative filtering requires a history of user-item interactions to make recommendations. When new users or items enter the system, the lack of historical data makes it difficult to generate accurate recommendations.
+	\item \textbf{Data sparsity}: In many real-world applications, users interact with only a small fraction of available items, leading to a sparse user-item matrix. This sparsity reduces the effectiveness of similarity-based methods and can negatively impact the quality of recommendations.
+	\item \textbf{Scalability}: As the number of users and items grows, computing similarity scores and performing matrix factorization becomes computationally expensive, posing challenges for real-time recommendation at scale.
+	\item \textbf{Popularity bias}: Collaborative filtering tends to recommend popular items more frequently, which can lead to a lack of diversity in recommendations and overlook niche or less-rated content.
+	\item \textbf{Lack of contextual understanding}: Collaborative filtering does not typically incorporate side information such as time, location, or user demographics, which may be crucial for making context-aware recommendations.
+\end{itemize}
+
+\subsection*{Q: What is the two-tower model?}
+The \textbf{two-tower model} is a neural architecture commonly used for tasks like recommendation, retrieval, and matching. It consists of two separate neural networks (or "towers")—one for encoding the query (e.g., user, question, search term) and one for encoding the candidate (e.g., item, product, document). Each tower processes its input independently to produce dense vector embeddings.
+
+The similarity between the query and candidate embeddings is then computed—typically using dot product or cosine similarity—to rank or retrieve relevant items. This architecture is efficient for large-scale retrieval since it allows for precomputing and indexing embeddings, enabling fast approximate nearest neighbor (ANN) search.
+
+Key advantages include:
+\begin{itemize}
+	\item Decoupled processing of queries and items, allowing independent optimization.
+	\item Scalability due to efficient embedding retrieval via vector similarity.
+	\item Simplicity and interpretability of embedding space.
+\end{itemize}
+
+Limitations include:
+\begin{itemize}
+	\item No cross-interaction between query and item features during encoding.
+	\item Suboptimal performance in tasks where joint modeling is important.
+\end{itemize}
+
+\subsection*{Q: What are the newer model architectures beyond the two-tower model?}
+Several newer architectures have been proposed to address the limitations of the two-tower model, particularly to capture richer interactions between queries and candidates:
+
+\begin{itemize}
+	\item \textbf{Cross-Encoder}: Instead of encoding query and candidate separately, a cross-encoder concatenates both inputs and feeds them into a single transformer (e.g., BERT). This allows for deep interaction between inputs and often achieves higher accuracy—but at a much higher computational cost, making it unsuitable for large-scale retrieval.
+
+	\item \textbf{Poly-Encoder}: Proposed by Facebook AI, the poly-encoder balances efficiency and interaction. It uses multiple context vectors (instead of a single one) to attend over the candidate representations. It achieves a middle ground between two-tower and cross-encoder models in terms of performance and speed.
+
+	\item \textbf{ColBERT (Contextualized Late Interaction)}: ColBERT introduces late interaction by computing token-level embeddings using BERT and applying a MaxSim operation across tokens. This allows fine-grained matching while still supporting fast retrieval through ANN techniques.
+
+	\item \textbf{Retriever-Ranker Architecture}: This hybrid approach first uses a fast two-tower retriever to narrow down candidates and then applies a more expressive cross-encoder to re-rank the top candidates. It is widely used in large-scale systems like search engines and QA pipelines.
+
+	\item \textbf{Dense-Sparse Hybrid Models}: Some models combine dense retrieval (like two-tower or ColBERT) with sparse representations (e.g., TF-IDF or BM25) to leverage both semantic similarity and lexical overlap.
+\end{itemize}
+
+These newer models improve retrieval accuracy by modeling cross-input interactions, at the cost of increased inference latency and system complexity.

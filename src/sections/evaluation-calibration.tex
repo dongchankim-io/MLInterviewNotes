@@ -1,0 +1,88 @@
+\section{Evaluation, Calibration \& Decisioning}
+
+\subsection*{Q: What are commonly used loss functions in ML?}
+Commonly used loss functions in machine learning include the following:
+\begin{itemize}
+	\item \textbf{Mean Squared Error (MSE)} is used in regression tasks and penalizes the squared difference between predicted and actual values.
+	      \[
+		      \mathcal{L}_{\text{MSE}} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+	      \]
+
+	\item \textbf{Binary Cross Entropy (BCE)} is used for binary classification and measures the difference between predicted probabilities and true binary labels.
+	      \[
+		      \mathcal{L}_{\text{BCE}} = - \frac{1}{n} \sum_{i=1}^{n} \left[ y_i \log(\hat{y}_i) + (1 - y_i) \log(1 - \hat{y}_i) \right]
+	      \]
+
+	\item \textbf{Cross-Entropy Loss} is applied in multi-class classification problems to quantify the divergence between predicted class probabilities and the actual class label.
+	      \[
+		      \mathcal{L}_{\text{CE}} = - \sum_{i=1}^{n} \sum_{c=1}^{C} y_{i,c} \log(\hat{y}_{i,c})
+	      \]
+	      where \( C \) is the number of classes, \( y_{i,c} \in \{0,1\} \) is the true label, and \( \hat{y}_{i,c} \) is the predicted probability for class \( c \).
+
+	\item \textbf{Hinge Loss}, leading to the canonical Support Vector Machines (SVMs), promotes a margin between classes to improve classification confidence.
+	      \[
+		      \mathcal{L}_{\text{Hinge}} = \frac{1}{n} \sum_{i=1}^{n} \max(0, 1 - y_i \hat{y}_i)
+	      \]
+	      where \( y_i \in \{-1, 1\} \) is the true class label, and \( \hat{y}_i \) is the predicted score.
+\end{itemize}
+
+\subsection*{Q: What is a ROC curve and what does AUC represent?}
+\textbf{ROC (Receiver Operating Characteristic) curve} illustrates the trade-off between the True Positive Rate (TPR, also known as recall) and the False Positive Rate (FPR) across various classification thresholds. It visualizes how well a binary classifier can distinguish between positive and negative classes at different decision boundaries. \\
+\textbf{AUC (Area Under the Curve)} is a scalar value that summarizes the overall performance of the model. It represents the probability that a randomly chosen positive example is ranked higher than a randomly chosen negative one. Interpretation of AUC values:
+\begin{itemize}
+	\item \textbf{1.0} — Perfect classification
+	\item \textbf{0.9–1.0} — Excellent performance
+	\item \textbf{0.8–0.9} — Good performance
+	\item \textbf{0.7–0.8} — Acceptable performance
+	\item \textbf{0.5} — No better than random guessing
+	\item \textbf{$<$ 0.5} — Worse than random (indicates a potential label inversion)
+\end{itemize}
+
+\subsection*{Q: What is a ROC curve and what does AUC represent?}
+\textbf{ROC (Receiver Operating Characteristic) curve} illustrates the trade-off between the True Positive Rate (TPR, also known as recall) and the False Positive Rate (FPR) across various classification thresholds. It visualizes how well a binary classifier can distinguish between positive and negative classes at different decision boundaries.
+
+\[
+	\text{TPR} = \frac{\text{TP}}{\text{TP} + \text{FN}} \quad \text{(True Positive Rate)}, \quad
+	\text{FPR} = \frac{\text{FP}}{\text{FP} + \text{TN}} \quad \text{(False Positive Rate)}
+\]
+
+Each point on the ROC curve corresponds to a different threshold used to convert predicted probabilities into class labels. \\ \\
+\textbf{AUC (Area Under the Curve)} is a scalar value that summarizes the overall performance of the model. It represents the probability that a randomly chosen positive example is ranked higher than a randomly chosen negative one.
+
+\[
+	\text{AUC} = \int_{0}^{1} \text{TPR}(\text{FPR}) \, d(\text{FPR})
+\]
+\\
+Interpretation of AUC values:
+\begin{itemize}
+	\item \textbf{1.0} — Perfect classification
+	\item \textbf{0.9–1.0} — Excellent performance
+	\item \textbf{0.8–0.9} — Good performance
+	\item \textbf{0.7–0.8} — Acceptable performance
+	\item \textbf{0.5} — No better than random guessing
+	\item \textbf{$<$ 0.5} — Worse than random (indicates a potential label inversion)
+\end{itemize}
+
+\subsection*{Q: What are common evaluation metrics for recommendation systems?}
+Recommendation systems are typically evaluated using metrics that assess ranking quality, relevance, diversity, and user satisfaction. Commonly used evaluation metrics include:
+
+\begin{itemize}
+	\item \textbf{Precision@k}: Measures the proportion of relevant items in the top-\(k\) recommended results. It answers: "Out of the top-\(k\) items recommended, how many are relevant?"
+
+	\item \textbf{Recall@k}: Measures the proportion of relevant items that are successfully recommended in the top-\(k\). It answers: "Out of all relevant items, how many were retrieved?"
+
+	\item \textbf{NDCG@k (Normalized Discounted Cumulative Gain)}: Weights the relevance of recommended items based on their position in the ranked list. Higher-ranked relevant items contribute more to the score. This metric reflects the usefulness of the ranking order.
+
+	\item \textbf{Hit Rate@k}: A binary version of recall—it measures whether at least one relevant item appears in the top-\(k\) recommendations.
+
+	\item \textbf{Mean Reciprocal Rank (MRR)}: Computes the reciprocal of the rank of the first relevant item. A higher MRR indicates that relevant items tend to appear earlier in the list.
+
+	\item \textbf{Coverage}: Measures the proportion of all items that the system is capable of recommending. High coverage indicates a broader ability to make diverse recommendations.
+
+	\item \textbf{Diversity and Novelty}: These assess how varied and unexpected the recommendations are. High diversity improves user satisfaction by avoiding redundancy, while novelty introduces users to less familiar content.
+
+	\item \textbf{AUC (Area Under the ROC Curve)}: Measures the probability that a randomly chosen positive item is ranked higher than a randomly chosen negative item. It is used for binary relevance evaluations.
+
+\end{itemize}
+
+Evaluation can be performed in both \textbf{offline} settings (e.g., using historical user-item interactions) and \textbf{online} settings (e.g., through A/B testing and user engagement metrics like click-through rate or dwell time).
