@@ -1,38 +1,99 @@
 \documentclass[11pt]{article}
-\usepackage{amsmath, amssymb}
 
-% Define document version command
-\newcommand{\docversion}{v0.4}
-\usepackage[a4paper, total={6in, 8in}, margin=0.7in]{geometry}
+% Enhanced packages for professional appearance
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[letterpaper, total={6.5in, 9in}, margin=0.5in, top=0.7in, bottom=0.7in]{geometry}
 \usepackage{fancyhdr}
 \usepackage{graphicx}
 \usepackage{enumitem}
 \usepackage{hyperref}
 \usepackage{titlesec}
-\usepackage{color}
+\usepackage{xcolor}
 \usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{setspace}
+\usepackage{parskip}
 
+% Define document version command
+\newcommand{\docversion}{v0.4}
+
+% Minimal color scheme - focus on important elements only
+\definecolor{primaryteal}{RGB}{0, 128, 128}
+\definecolor{accentorange}{RGB}{230, 126, 34}
+\definecolor{lightgray}{RGB}{240, 248, 255}
+\definecolor{darkgray}{RGB}{25, 25, 112}
+
+% Enhanced hyperref settings
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primaryteal,
+    filecolor=accentorange,
+    urlcolor=primaryteal,
+    citecolor=primaryteal,
+    pdftitle={ML Technical Interview Notes},
+    pdfauthor={DonK},
+    pdfsubject={Machine Learning Technical Interview Preparation},
+    pdfkeywords={ML, AI, Technical Interview, Machine Learning, Deep Learning}
+}
+
+% Minimal page style
 \pagestyle{fancy}
 \fancyhf{}
-\rhead{ML Technical Interview Notes}
-\lhead{Prepared by: DonK}
-\rfoot{\thepage}
-\lfoot{\docversion}
+\fancyhead[L]{\textbf{ML Technical Interview Notes}}
+\fancyhead[R]{\small Prepared by: DonK}
+\fancyfoot[L]{\small \docversion}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{primaryteal}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\footrulewidth}{0.5pt}
+\renewcommand{\footrule}{\hbox to\headwidth{\color{lightgray}\leaders\hrule height \footrulewidth\hfill}}
 
+% Fix headheight warning
+\setlength{\headheight}{24pt}
+
+% Minimal title formatting - only main sections get color
+\titleformat{\section}{\Large\bfseries\color{primaryteal}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries}{}{0em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{}{0em}{}
+
+% Enhanced spacing
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+\setlength{\itemsep}{0.3em}
+\setlength{\parsep}{0.3em}
+
+% Enhanced list styling
+\setlist[itemize]{leftmargin=1.5em, itemsep=0.2em, parsep=0.1em}
+\setlist[enumerate]{leftmargin=1.5em, itemsep=0.2em, parsep=0.1em}
+
+% Enhanced title page
 \title{
+  \vspace{2cm}
+  \Huge\textbf{\textcolor{primaryteal}{ML Technical Interview Notes}} \\
   \vspace{1cm}
-  \Huge\textbf{ML Technical Interview Prep. Notes} \\
+  \Large{Comprehensive Preparation Guide for ML Technical Interviews} \\
   \vspace{0.5cm}
-  \large A Concise Notes for ML Technical Interviews \\
-  \vspace{5cm}
+  \large{Advanced Topics, Mathematical Foundations, and Practical Insights} \\
+  \vspace{2cm}
   \begin{center}
-    \includegraphics[width=0.7\textwidth]{p_logo.png}
+    \includegraphics[width=0.6\textwidth]{p_logo.png}
   \end{center}
-  \vspace{5cm}
+  \vspace{2cm}
 }
-\author{\textbf{DonK} \\
-\small dongchan@dongchankim.io}
-\date{\today}
+
+\author{
+  \Large\textbf{DonK} \\
+  \large{dongchan@dongchankim.io} \\
+}
+
+\date{
+  \large{\today} \\
+  \small\textcolor{accentorange}{Version \docversion}
+}
 
 \begin{document}
 
@@ -40,18 +101,31 @@
 % Cover Page
 % -------------------
 \begin{titlepage}
-	\maketitle
-	\thispagestyle{empty}
-	\vspace*{\fill}
-	\small\textit{Note: The order of the questions is categorized by technical topic for clarity.}
+  \maketitle
+  \thispagestyle{empty}
+  \vspace*{\fill}
+  \begin{center}
+    \begin{minipage}{0.8\textwidth}
+      \centering
+      \small\textit{
+        This document provides comprehensive coverage of machine learning concepts, 
+        mathematical foundations, and advanced techniques essential for technical interviews. Topics are organized by technical domain for systematic 
+        preparation and reference.
+      }
+    \end{minipage}
+  \end{center}
+  \vspace{1cm}
+  \begin{center}
+    \textcolor{accentorange}{\rule{0.3\textwidth}{1pt}}
+  \end{center}
 \end{titlepage}
 
 % -------------------
 % Table of Contents
 % -------------------
 \pagenumbering{roman}
-\tableofcontents
-\thispagestyle{empty}
+% \tableofcontents
+% \thispagestyle{empty}
 \newpage
 
 % -------------------

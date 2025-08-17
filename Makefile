@@ -20,14 +20,12 @@ build:
 	@cd src && pdflatex -interaction=nonstopmode main.tex
 	@cd src && pdflatex -interaction=nonstopmode main.tex
 	@if [ -f "src/main.pdf" ]; then \
-		mv src/main.pdf "../MLInterviewNotes_$(shell grep '\\newcommand{\\docversion}' src/header.tex | sed 's/.*\\newcommand{\\docversion}{\([^}]*\)}.*/\1/').pdf"; \
+		mv "src/main.pdf" "MLInterviewNotes_$(shell grep '\\newcommand{\\docversion}' src/header.tex | sed 's/.*\\newcommand{\\docversion}{\([^}]*\)}.*/\1/').pdf"; \
 		echo "PDF generated successfully: MLInterviewNotes_$(shell grep '\\newcommand{\\docversion}' src/header.tex | sed 's/.*\\newcommand{\\docversion}{\([^}]*\)}.*/\1/').pdf"; \
 	else \
 		echo "Error: main.pdf was not generated"; \
 		exit 1; \
 	fi
-	@echo "Cleaning up auxiliary files..."
-	@rm -f src/*.aux src/*.log src/*.out src/*.toc src/*.fdb_latexmk src/*.fls src/*.synctex.gz
 	@echo "Build complete! Output: MLInterviewNotes_$(shell grep '\\newcommand{\\docversion}' src/header.tex | sed 's/.*\\newcommand{\\docversion}{\([^}]*\)}.*/\1/').pdf"
 
 # Format all .tex files
@@ -57,7 +55,17 @@ format-file:
 # Clean auxiliary files and PDFs
 clean:
 	@echo "Cleaning up auxiliary files and PDFs..."
-	@rm -f src/*.aux src/*.log src/*.out src/*.toc src/*.fdb_latexmk src/*.fls src/*.synctex.gz
+	@find . -name "*.aux" -delete
+	@find . -name "*.log" -delete
+	@find . -name "*.out" -delete
+	@find . -name "*.toc" -delete
+	@find . -name "*.fdb_latexmk" -delete
+	@find . -name "*.fls" -delete
+	@find . -name "*.synctex.gz" -delete
+	@find . -name "*.bak*" -delete
+	@find . -name "*.backup" -delete
+	@find . -name "*.orig" -delete
+	@find . -name "*.tmp" -delete
 	@rm -f MLInterviewNotes_*.pdf
 	@echo "Cleanup complete!"
 
