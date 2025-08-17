@@ -1,29 +1,61 @@
-# README #
+# ML Technical Interview Notes
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This repository contains comprehensive notes for ML technical interviews, written in LaTeX.
 
-### What is this repository for? ###
+## LaTeX Auto Formatting
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+This project uses `latexindent` for automatic LaTeX code formatting. The setup includes:
 
-### How do I get set up? ###
+### Files Created
+- `latexindent.yaml` - Global configuration file
+- `src/.latexindent.yaml` - Project-specific configuration
+- `format-latex.sh` - Formatting script
+- `.vscode/settings.json` - VS Code integration
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+### Usage
 
-### Contribution guidelines ###
+#### Command Line
+```bash
+# Format all .tex files in src/ directory
+./format-latex.sh
 
-* Writing tests
-* Code review
-* Other guidelines
+# Format a specific file
+./format-latex.sh src/main.tex
+```
 
-### Who do I talk to? ###
+#### VS Code Integration
+- LaTeX files will be automatically formatted on save
+- Use `Shift+Alt+F` to format manually
+- The formatter is configured to use `latexindent` with project-specific settings
 
-* Repo owner or admin
-* Other community or team contact
+### Configuration
+The formatter is configured with:
+- 100-character line width for project files
+- Proper indentation for environments and commands
+- Preservation of mathematical expressions
+- Automatic trailing whitespace removal
+
+### Requirements
+- `latexindent` (already installed on your system)
+- VS Code with LaTeX extension (for editor integration)
+
+## Document Structure
+
+The main document (`src/main.tex`) covers:
+- Model Training Fundamentals
+- Optimization Algorithms  
+- Regularization Techniques
+- Loss Functions and Evaluation
+- Model Architectures
+- Fine-Tuning Techniques
+- Fundamental ML Concepts
+- Recommender Systems
+
+## Building the Document
+
+```bash
+cd src
+pdflatex main.tex
+```
+
+The compiled PDF will be available as `src/main.pdf`.

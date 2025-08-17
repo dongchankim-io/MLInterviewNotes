@@ -1,0 +1,27 @@
+# Project-specific latexindent configuration
+# This file will be used when formatting files in the src/ directory
+
+# Use the main configuration file
+lookForAlignDelims:
+  alignDelims: 1
+
+# Customize for this project
+modifyLineBreaks:
+  textWrapOptions:
+    columns: 100  # Slightly wider for this project
+    separator: " "
+    separatorIndent: "  "
+
+# Keep existing formatting for equations
+maths:
+  BeginStartsOnOwnLine: 1
+  BodyStartsOnOwnLine: 1
+  EndsOnOwnLine: 1
+  Indent: 1
+
+# Preserve document structure
+document:
+  BeginStartsOnOwnLine: 1
+  BodyStartsOnOwnLine: 1
+  EndsOnOwnLine: 1
+  Indent: 1 

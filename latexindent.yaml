@@ -1,0 +1,71 @@
+# latexindent configuration file
+# This file configures latexindent formatting options
+
+# Basic settings
+logFilePreferences:
+  logFilePath: .latexindent
+  createLogFile: 1
+  logFileStyle: detailed
+
+# Indentation settings
+indentPreamble:
+  indentPreamble: 1
+
+# Line wrapping and spacing
+modifyLineBreaks:
+  textWrapOptions:
+    columns: 80
+    separator: " "
+    separatorIndent: "  "
+    beforeProcessing:
+      removeParagraphLineBreaks: 1
+      removeTrailingComments: 1
+    afterProcessing:
+      ensureFinalLineBreak: 1
+
+# Environment formatting
+environments:
+  BeginStartsOnOwnLine: 1
+  BodyStartsOnOwnLine: 1
+  EndsOnOwnLine: 1
+  Indent: 1
+  IndentLeading: 1
+
+# Command formatting
+ifElseFi:
+  IfStartsOnOwnLine: 1
+  ElseStartsOnOwnLine: 1
+  FiStartsOnOwnLine: 1
+  Indent: 1
+
+# Special commands
+specialBeginEnd:
+  environments:
+    BeginStartsOnOwnLine: 1
+    BodyStartsOnOwnLine: 1
+    EndsOnOwnLine: 1
+    Indent: 1
+
+# Itemize and enumerate
+itemize:
+  BeginStartsOnOwnLine: 1
+  BodyStartsOnOwnLine: 1
+  EndsOnOwnLine: 1
+  Indent: 1
+  ItemStartsOnOwnLine: 1
+
+# Section formatting
+sections:
+  BeginStartsOnOwnLine: 1
+  BodyStartsOnOwnLine: 1
+  Indent: 1
+
+# Comment formatting
+comments:
+  BeginStartsOnOwnLine: 1
+  Indent: 1
+
+# Remove trailing whitespace
+removeTrailingWhitespace:
+  beforeProcessing:
+    removeTrailingWhitespace: 1 
