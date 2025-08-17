@@ -3,8 +3,67 @@
 \subsection*{Q: How do Transformers differ from traditional Seq2Seq models?}
 \textbf{Transformers} use self-attention instead of recurrence, enabling parallelism and better modeling of long-range dependencies by self-attention and positional embeddings.
 
+Traditional Seq2Seq models (like LSTM-based) process sequences sequentially, making them:
+\begin{itemize}
+	\item \textbf{Sequential}: Cannot parallelize training across sequence length
+	\item \textbf{Memory-limited}: Struggle with very long sequences due to vanishing gradients
+	\item \textbf{Position-dependent}: Rely on hidden state to encode position information
+\end{itemize}
+
+Transformers address these limitations through:
+\begin{itemize}
+	\item \textbf{Parallel attention}: All positions can attend to all other positions simultaneously
+	\item \textbf{Global receptive field}: Each position can directly access any other position
+	\item \textbf{Positional encoding}: Explicit position information through sinusoidal embeddings
+\end{itemize}
+
 \subsection*{Q: What are positional embeddings and why are they used in Transformers?}
 \textbf{Positional embeddings} encode token positions, which allows the transformer to maintain sequence order since self-attention lacks inherently order awareness, otherwise.
+
+The original positional encoding uses sinusoidal functions:
+\[
+PE_{(pos, 2i)} = \sin\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)
+\]
+\[
+PE_{(pos, 2i+1)} = \cos\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)
+\]
+
+where \(pos\) is the position and \(i\) is the dimension. This encoding:
+\begin{itemize}
+	\item Allows the model to learn relative positions through trigonometric identities
+	\item Generalizes to sequence lengths not seen during training
+	\item Provides unique encoding for each position
+\end{itemize}
+
+Alternative approaches include:
+\begin{itemize}
+	\item \textbf{Learned positional embeddings}: Trainable parameters for each position
+	\item \textbf{Rotary Position Embedding (RoPE)}: Applies rotation matrices to token embeddings
+	\item \textbf{ALiBi}: Adds learned bias terms to attention scores
+\end{itemize}
+
+\subsection*{Q: What is the mathematical foundation of self-attention?}
+Self-attention computes attention scores between all pairs of positions in a sequence. Given input embeddings \(X \in \mathbb{R}^{n \times d}\), the attention mechanism computes:
+
+\textbf{Query, Key, Value matrices}:
+\[
+Q = XW_Q, \quad K = XW_K, \quad V = XW_V
+\]
+
+\textbf{Attention scores}:
+\[
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+\]
+
+where \(d_k\) is the dimension of keys (typically \(d_k = d_{\text{model}}/h\) for \(h\) heads).
+
+The scaling factor \(\frac{1}{\sqrt{d_k}}\) prevents the dot products from growing too large, which would push the softmax into regions with small gradients.
+
+\textbf{Multi-head attention} allows the model to attend to different subspaces:
+\[
+\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h)W^O
+\]
+where each head computes attention in a different subspace.
 
 \subsection*{Q: What is Byte Pair Encoding (BPE) and why is it used?}
 \textbf{Byte Pair Encoding (BPE)} is a subword tokenization algorithm that decomposes text into units that strike a balance between individual characters and complete words. It begins by treating each character as a separate token and then iteratively merges the most frequent adjacent pairs of tokens into new combined tokens. This approach improves model performance by:
@@ -16,6 +75,21 @@
 
 BPE is widely used in modern language models such as GPT and RoBERTa due to its ability to efficiently tokenize large corpora while preserving useful linguistic structures.
 
+The algorithm works as follows:
+\begin{enumerate}
+	\item Initialize vocabulary with individual characters
+	\item Count frequency of adjacent token pairs in training data
+	\item Merge most frequent pair into new token
+	\item Add new token to vocabulary
+	\item Repeat until desired vocabulary size is reached
+\end{enumerate}
+
+\textbf{Tokenization process}:
+\[
+\text{Tokenize}(text) = \arg\min_{t_1, \ldots, t_n} \sum_{i=1}^{n} \text{Count}(t_i)
+\]
+where \(t_i\) are subword tokens and \(\text{Count}(t_i)\) is the frequency of token \(t_i\).
+
 \subsection*{Q: What are the common decoding techniques used in large language models (LLMs)?}
 Several decoding techniques are used to generate text from large language models, each with different trade-offs between determinism, diversity, and coherence:
 
@@ -26,6 +100,24 @@ Several decoding techniques are used to generate text from large language models
 	\item \textbf{Top-\(p\) Sampling (Nucleus Sampling)}: This method selects from the smallest possible set of tokens whose cumulative probability exceeds a threshold \(p\) (e.g., 0.9). It adapts the candidate pool dynamically and often results in more coherent yet diverse outputs compared to top-\(k\) sampling.
 	\item \textbf{Temperature Scaling}: Although not a decoding method itself, temperature is a parameter often used during sampling to control randomness. A lower temperature makes the model more confident (peaky distributions), while a higher temperature makes it more random and exploratory.
 \end{itemize}
+
+\textbf{Mathematical formulation}:
+For top-\(k\) sampling:
+\[
+P_{\text{top-k}}(x_i) = \begin{cases}
+\frac{P(x_i)}{\sum_{j \in \text{top-k}} P(x_j)} & \text{if } i \in \text{top-k} \\
+0 & \text{otherwise}
+\end{cases}
+\]
+
+For top-\(p\) sampling:
+\[
+P_{\text{top-p}}(x_i) = \begin{cases}
+\frac{P(x_i)}{\sum_{j \in V_p} P(x_j)} & \text{if } i \in V_p \\
+0 & \text{otherwise}
+\end{cases}
+\]
+where \(V_p\) is the smallest set such that \(\sum_{i \in V_p} P(x_i) \geq p\).
 
 \subsection*{Q: What is MMOE and what are some other multi-objective learning algorithms?}
 \begin{itemize}
@@ -50,17 +142,341 @@ Several decoding techniques are used to generate text from large language models
 
 Multi-objective and multi-task learning algorithms are especially useful when tasks are related and can benefit from shared representations, improving generalization and model efficiency.
 
+\textbf{MMOE mathematical formulation}:
+For task \(k\), the output is:
+\[
+y_k = \sum_{i=1}^{n} g_k^i(x) \cdot f_i(x)
+\]
+where \(g_k^i(x)\) is the gating network output for expert \(i\) on task \(k\), and \(f_i(x)\) is the output of expert \(i\).
+
+The gating network uses softmax:
+\[
+g_k^i(x) = \frac{\exp(h_k^i(x))}{\sum_{j=1}^{n} \exp(h_k^j(x))}
+\]
+where \(h_k^i(x)\) is the logit for expert \(i\) on task \(k\).
+
+\subsection*{Q: What are Mixture of Experts (MoE) architectures and how do they work?}
+\textbf{Mixture of Experts (MoE)} is a neural architecture that consists of multiple expert networks and a gating network that dynamically routes inputs to the most relevant experts. This approach enables models to scale to very large parameter counts while maintaining computational efficiency through conditional computation.
+
+\textbf{Core components}:
+\begin{itemize}
+	\item \textbf{Expert Networks}: Specialized sub-networks that learn different aspects of the input space
+	\item \textbf{Gating Network}: A router that determines which experts should process each input
+	\item \textbf{Combination Mechanism}: Aggregates expert outputs based on gating probabilities
+\end{itemize}
+
+\textbf{Mathematical formulation}:
+For input \(x\), the MoE output is:
+\[
+y = \sum_{i=1}^{n} g_i(x) \cdot f_i(x)
+\]
+where \(g_i(x)\) is the gating probability for expert \(i\), and \(f_i(x)\) is the output of expert \(i\).
+
+The gating network typically uses softmax:
+\[
+g_i(x) = \frac{\exp(h_i(x))}{\sum_{j=1}^{n} \exp(h_j(x))}
+\]
+where \(h_i(x)\) is the logit for expert \(i\).
+
+\textbf{Key advantages}:
+\begin{itemize}
+	\item \textbf{Scalability}: Can handle billions of parameters efficiently
+	\item \textbf{Specialization}: Experts can specialize in different input patterns
+	\item \textbf{Conditional computation}: Only active experts consume compute
+	\item \textbf{Modularity}: Easy to add/remove experts or modify routing
+\end{itemize}
+
+\subsection*{Q: What are the different types of MoE architectures?}
+Several variants of MoE have been developed for different use cases:
+
+\begin{itemize}
+	\item \textbf{Traditional MoE}: Basic mixture of experts with soft routing
+	\item \textbf{Sparse MoE}: Only activates top-k experts per input (e.g., Switch Transformers)
+	\item \textbf{Hierarchical MoE}: Organizes experts in a tree structure
+	\item \textbf{Task-specific MoE}: Different expert sets for different tasks
+	\item \textbf{Dynamic MoE}: Adapts expert selection based on input characteristics
+\end{itemize}
+
+\textbf{Sparse MoE} (most common in practice):
+Instead of using all experts, sparse MoE selects the top-k experts:
+\[
+g_i(x) = \begin{cases}
+\frac{\exp(h_i(x))}{\sum_{j \in \text{top-k}} \exp(h_j(x))} & \text{if } i \in \text{top-k} \\
+0 & \text{otherwise}
+\end{cases}
+\]
+
+This reduces computation from \(O(n)\) to \(O(k)\) where \(k \ll n\).
+
+\textbf{Switch Transformers} use \(k=1\) (single expert per input), making them extremely efficient:
+\[
+y = f_{\arg\max_i h_i(x)}(x)
+\]
+
+\subsection*{Q: How does routing work in MoE architectures?}
+\textbf{Routing} in MoE determines which experts should process each input. The routing mechanism is crucial for both performance and efficiency.
+
+\textbf{Soft routing} (traditional MoE):
+\[
+g_i(x) = \text{softmax}(h_i(x))_i
+\]
+All experts contribute to the output, weighted by their gating probabilities.
+
+\textbf{Hard routing} (sparse MoE):
+\[
+g_i(x) = \begin{cases}
+1 & \text{if } i = \arg\max_j h_j(x) \\
+0 & \text{otherwise}
+\end{cases}
+\]
+Only the most relevant expert contributes to the output.
+
+\textbf{Top-k routing}:
+\[
+g_i(x) = \begin{cases}
+\frac{\exp(h_i(x))}{\sum_{j \in \text{top-k}} \exp(h_j(x))} & \text{if } i \in \text{top-k} \\
+0 & \text{otherwise}
+\end{cases}
+\]
+The top-k experts contribute, weighted by their relative scores.
+
+\textbf{Routing strategies}:
+\begin{itemize}
+	\item \textbf{Load balancing}: Ensures experts are used evenly across inputs
+	\item \textbf{Expert diversity}: Prevents routing collapse to a few experts
+	\item \textbf{Noise injection}: Adds randomness to prevent deterministic routing
+	\item \textbf{Auxiliary losses}: Additional objectives to improve routing quality
+\end{itemize}
+
+\subsection*{Q: What are the challenges and solutions in training MoE models?}
+\textbf{Training MoE models} presents several unique challenges:
+
+\textbf{Load balancing}:
+\begin{itemize}
+	\item \textbf{Problem}: Experts may receive very few inputs, leading to poor training
+	\item \textbf{Solutions}: 
+	\begin{itemize}
+		\item Auxiliary load balancing loss
+		\item Expert diversity regularization
+		\item Noise injection in routing
+		\item Expert dropout during training
+	\end{itemize}
+\end{itemize}
+
+\textbf{Routing collapse}:
+\begin{itemize}
+	\item \textbf{Problem}: Gating network may always select the same experts
+	\item \textbf{Solutions}:
+	\begin{itemize}
+		\item Entropy regularization on gating distribution
+		\item Expert diversity constraints
+		\item Curriculum learning for routing
+	\end{itemize}
+\end{itemize}
+
+\textbf{Gradient flow}:
+\begin{itemize}
+	\item \textbf{Problem}: Gradients may not flow well through the routing mechanism
+	\item \textbf{Solutions}:
+	\begin{itemize}
+		\item Straight-through estimators
+		\item Gumbel-softmax for differentiable routing
+		\item REINFORCE for discrete routing
+	\end{itemize}
+\end{itemize}
+
+\textbf{Mathematical formulations}:
+
+\textbf{Load balancing loss}:
+\[
+\mathcal{L}_{\text{load}} = \alpha \sum_{i=1}^{n} \left(\frac{1}{B} \sum_{b=1}^{B} g_i(x_b) - \frac{1}{n}\right)^2
+\]
+where \(B\) is batch size and \(\alpha\) controls the strength of load balancing.
+
+\textbf{Expert diversity loss}:
+\[
+\mathcal{L}_{\text{diversity}} = \beta \sum_{i \neq j} \text{sim}(f_i, f_j)
+\]
+where \(\text{sim}(f_i, f_j)\) measures similarity between expert outputs.
+
+\subsection*{Q: How do MoE architectures scale to large models?}
+\textbf{MoE scaling} enables training of extremely large models efficiently:
+
+\textbf{Parameter scaling}:
+\begin{itemize}
+	\item \textbf{Expert parameters}: Can scale to billions of parameters per expert
+	\item \textbf{Shared parameters}: Routing and other components remain constant
+	\item \textbf{Total parameters}: Can reach trillions of parameters
+\end{itemize}
+
+\textbf{Computational scaling}:
+\begin{itemize}
+	\item \textbf{Per-token computation}: Only active experts consume compute
+	\item \textbf{Memory efficiency}: Experts can be distributed across devices
+	\item \textbf{Inference speed}: Scales with number of active experts, not total experts
+\end{itemize}
+
+\textbf{Distributed training strategies}:
+\begin{itemize}
+	\item \textbf{Expert parallelism}: Distribute experts across multiple devices
+	\item \textbf{Data parallelism}: Replicate experts across devices
+	\item \textbf{Hybrid approaches}: Combine both strategies for optimal scaling
+\end{itemize}
+
+\textbf{Mathematical analysis}:
+For a model with \(n\) experts, each with \(p\) parameters:
+\begin{itemize}
+	\item \textbf{Total parameters}: \(O(n \cdot p)\)
+	\item \textbf{Active parameters per input}: \(O(k \cdot p)\) where \(k\) is routing sparsity
+	\item \textbf{Computation ratio}: \(\frac{k}{n}\) (e.g., 1/8 for top-1 routing with 8 experts)
+\end{itemize}
+
+\textbf{Memory considerations}:
+\begin{itemize}
+	\item \textbf{Expert memory}: \(O(n \cdot p)\) parameters stored
+	\item \textbf{Activation memory}: \(O(k \cdot p)\) activations computed
+	\item \textbf{Routing memory}: \(O(n)\) gating probabilities
+\end{itemize}
+
+\subsection*{Q: What are the applications and use cases for MoE architectures?}
+\textbf{MoE architectures} have found success in various domains:
+
+\textbf{Natural Language Processing}:
+\begin{itemize}
+	\item \textbf{Large language models}: GPT-4, PaLM, Switch Transformers
+	\item \textbf{Machine translation}: Multi-lingual models with language-specific experts
+	\item \textbf{Text generation}: Domain-specific experts for different writing styles
+\end{itemize}
+
+\textbf{Computer Vision}:
+\begin{itemize}
+	\item \textbf{Image classification}: Experts for different visual patterns
+	\item \textbf{Object detection}: Experts for different object categories
+	\item \textbf{Multi-modal tasks}: Separate experts for different input modalities
+\end{itemize}
+
+\textbf{Recommendation Systems}:
+\begin{itemize}
+	\item \textbf{User modeling}: Experts for different user segments
+	\item \textbf{Content understanding}: Experts for different content types
+	\item \textbf{Multi-objective optimization}: Balancing multiple objectives
+\end{itemize}
+
+\textbf{Multi-task Learning}:
+\begin{itemize}
+	\item \textbf{Task-specific experts}: Specialized experts for different tasks
+	\item \textbf{Shared representations}: Common experts for shared knowledge
+	\item \textbf{Transfer learning}: Leveraging expertise across related tasks
+\end{itemize}
+
+\textbf{Key benefits in these applications}:
+\begin{itemize}
+	\item \textbf{Scalability}: Handle larger models and datasets
+	\item \textbf{Specialization}: Experts can focus on specific patterns
+	\item \textbf{Efficiency}: Conditional computation reduces resource usage
+	\item \textbf{Flexibility}: Easy to adapt to new tasks or domains
+\end{itemize}
+
 \subsection*{Q: What is PEFT (Parameter-Efficient Fine-Tuning)?}
 \textbf{PEFT} fine-tunes only a subset of parameters, reducing memory and compute costs while preserving performance.
+
+PEFT methods include:
+\begin{itemize}
+	\item \textbf{LoRA (Low-Rank Adaptation)}: Adds low-rank trainable matrices to frozen layers
+	\item \textbf{Adapter Layers}: Inserts small trainable layers between frozen layers
+	\item \textbf{Prefix Tuning}: Prepends trainable prefix tokens to input
+	\item \textbf{Prompt Tuning}: Trains continuous prompt embeddings
+	\item \textbf{BitFit}: Only fine-tunes bias terms
+\end{itemize}
+
+\textbf{Benefits}:
+\begin{itemize}
+	\item Reduced memory footprint (can fine-tune large models on consumer hardware)
+	\item Faster training and inference
+	\item Better preservation of pre-trained knowledge
+	\item Easier model sharing and deployment
+\end{itemize}
 
 \subsection*{Q: What is LoRA and how does it work?}
 \textbf{LoRA} adds low-rank trainable matrices to frozen layers, reducing the number of trainable parameters for speed and memory-efficiency.
 
+For a pre-trained weight matrix \(W_0 \in \mathbb{R}^{d \times k}\), LoRA parameterizes its change during adaptation as:
+\[
+W = W_0 + \Delta W = W_0 + BA
+\]
+where \(B \in \mathbb{R}^{d \times r}\) and \(A \in \mathbb{R}^{r \times k}\) are low-rank matrices with rank \(r \ll \min(d, k)\).
+
+The forward pass becomes:
+\[
+h = Wx = W_0x + \Delta Wx = W_0x + BAx
+\]
+
+\textbf{Key advantages}:
+\begin{itemize}
+	\item \textbf{Memory efficient}: Only stores \(B\) and \(A\) instead of full \(\Delta W\)
+	\item \textbf{Fast adaptation}: Low-rank structure allows efficient updates
+	\item \textbf{Modular}: Can easily switch between different LoRA adapters
+	\item \textbf{Composable}: Multiple LoRA adapters can be combined
+\end{itemize}
+
+\textbf{Optimal rank selection}:
+The rank \(r\) is a hyperparameter that balances:
+\begin{itemize}
+	\item \textbf{Expressiveness}: Higher rank allows more complex adaptations
+	\item \textbf{Efficiency}: Lower rank reduces memory and computation
+	\item \textbf{Generalization}: Lower rank can prevent overfitting
+\end{itemize}
+
 \subsection*{Q: What is QLoRA and why is it useful?}
 \textbf{QLoRA} applies LoRA to the quantized models (e.g., 4-bit), enabling fine-tuning of large models on limited hardware. Once all the training is done, the original weights will be de-quantized.
 
+QLoRA uses 4-bit NormalFloat (NF4) quantization, which:
+\begin{itemize}
+	\item Reduces memory usage by 8x compared to 16-bit precision
+	\item Maintains model performance through careful quantization
+	\item Enables fine-tuning of 65B+ parameter models on consumer hardware
+\end{itemize}
+
+\textbf{Quantization process}:
+For a weight matrix \(W\), NF4 quantization:
+\begin{enumerate}
+	\item Normalizes weights to \([-1, 1]\) range
+	\item Maps to 16 discrete values using normal distribution
+	\item Stores only 4 bits per weight
+\end{enumerate}
+
+\textbf{Memory savings}:
+\begin{itemize}
+	\item \textbf{Model weights}: 4-bit instead of 16-bit (4x reduction)
+	\item \textbf{LoRA adapters}: Only train low-rank matrices
+	\item \textbf{Total memory}: 8-16x reduction compared to full fine-tuning
+\end{itemize}
+
 \subsection*{Q: What is collaborative filtering and what are its types?}
 \textbf{Collaborative filtering} recommends items based on user/item similarity. Types include user-based, item-based, and matrix factorization.
+
+\textbf{User-based CF} finds similar users and recommends items they liked:
+\[
+\text{sim}(u, v) = \frac{\sum_{i \in I_{uv}} (r_{ui} - \bar{r}_u)(r_{vi} - \bar{r}_v)}{\sqrt{\sum_{i \in I_{uv}} (r_{ui} - \bar{r}_u)^2} \sqrt{\sum_{i \in I_{uv}} (r_{vi} - \bar{r}_v)^2}}
+\]
+where \(r_{ui}\) is user \(u\)'s rating for item \(i\), and \(I_{uv}\) is the set of items rated by both users.
+
+\textbf{Item-based CF} finds similar items and recommends them:
+\[
+\text{sim}(i, j) = \frac{\sum_{u \in U_{ij}} (r_{ui} - \bar{r}_i)(r_{uj} - \bar{r}_j)}{\sqrt{\sum_{u \in U_{ij}} (r_{ui} - \bar{r}_i)^2} \sqrt{\sum_{u \in U_{ij}} (r_{uj} - \bar{r}_j)^2}}
+\]
+
+\textbf{Matrix Factorization} decomposes the rating matrix \(R \in \mathbb{R}^{m \times n}\) into:
+\[
+R \approx UV^T
+\]
+where \(U \in \mathbb{R}^{m \times k}\) and \(V \in \mathbb{R}^{n \times k}\) are user and item latent factor matrices.
+
+The objective function is:
+\[
+\min_{U, V} \sum_{(u,i) \in \Omega} (r_{ui} - u_u^T v_i)^2 + \lambda(\|U\|_F^2 + \|V\|_F^2)
+\]
+where \(\Omega\) is the set of observed ratings and \(\lambda\) is the regularization parameter.
 
 \subsection*{Q: What are the limitations of collaborative filtering?}
 \begin{itemize}
@@ -71,10 +487,34 @@ Multi-objective and multi-task learning algorithms are especially useful when ta
 	\item \textbf{Lack of contextual understanding}: Collaborative filtering does not typically incorporate side information such as time, location, or user demographics, which may be crucial for making context-aware recommendations.
 \end{itemize}
 
+\textbf{Mathematical analysis}:
+For a user-item matrix with \(m\) users and \(n\) items, the sparsity is:
+\[
+\text{Sparsity} = 1 - \frac{|\Omega|}{mn}
+\]
+where \(|\Omega|\) is the number of observed interactions.
+
+When sparsity is high (e.g., >99\%), similarity computations become unreliable due to insufficient overlap between users/items.
+
 \subsection*{Q: What is the two-tower model?}
 The \textbf{two-tower model} is a neural architecture commonly used for tasks like recommendation, retrieval, and matching. It consists of two separate neural networks (or "towers")—one for encoding the query (e.g., user, question, search term) and one for encoding the candidate (e.g., item, product, document). Each tower processes its input independently to produce dense vector embeddings.
 
 The similarity between the query and candidate embeddings is then computed—typically using dot product or cosine similarity—to rank or retrieve relevant items. This architecture is efficient for large-scale retrieval since it allows for precomputing and indexing embeddings, enabling fast approximate nearest neighbor (ANN) search.
+
+\textbf{Mathematical formulation}:
+For query \(q\) and candidate \(c\), the model computes:
+\[
+f_q(q) = \text{Tower}_q(q), \quad f_c(c) = \text{Tower}_c(c)
+\]
+\[
+\text{score}(q, c) = f_q(q)^T f_c(c)
+\]
+
+The model is trained using contrastive learning with negative sampling:
+\[
+\mathcal{L} = -\log \frac{\exp(\text{score}(q, c^+))}{\exp(\text{score}(q, c^+)) + \sum_{i=1}^{N} \exp(\text{score}(q, c_i^-))}
+\]
+where \(c^+\) is a positive candidate and \(c_i^-\) are negative candidates.
 
 Key advantages include:
 \begin{itemize}
@@ -105,3 +545,13 @@ Several newer architectures have been proposed to address the limitations of the
 \end{itemize}
 
 These newer models improve retrieval accuracy by modeling cross-input interactions, at the cost of increased inference latency and system complexity.
+
+\textbf{Performance comparison}:
+\begin{itemize}
+	\item \textbf{Two-Tower}: Fastest inference, lowest accuracy
+	\item \textbf{Poly-Encoder}: Medium speed, medium accuracy
+	\item \textbf{Cross-Encoder}: Slowest inference, highest accuracy
+	\item \textbf{Hybrid}: Balanced approach with retriever + reranker
+\end{itemize}
+
+The choice depends on the trade-off between accuracy and latency requirements in your specific use case.

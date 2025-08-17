@@ -1,88 +1,309 @@
-\section{Evaluation, Calibration \& Decisioning}
+\section{Evaluation \& Calibration}
 
-\subsection*{Q: What are commonly used loss functions in ML?}
-Commonly used loss functions in machine learning include the following:
-\begin{itemize}
-	\item \textbf{Mean Squared Error (MSE)} is used in regression tasks and penalizes the squared difference between predicted and actual values.
-	      \[
-		      \mathcal{L}_{\text{MSE}} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
-	      \]
+\subsection*{Q: What are common loss functions and when should you use them?}
+Common loss functions include Mean Squared Error (MSE) for regression, Binary Cross-Entropy (BCE) for binary classification, Cross-Entropy for multi-class classification, and Hinge Loss for support vector machines.
 
-	\item \textbf{Binary Cross Entropy (BCE)} is used for binary classification and measures the difference between predicted probabilities and true binary labels.
-	      \[
-		      \mathcal{L}_{\text{BCE}} = - \frac{1}{n} \sum_{i=1}^{n} \left[ y_i \log(\hat{y}_i) + (1 - y_i) \log(1 - \hat{y}_i) \right]
-	      \]
-
-	\item \textbf{Cross-Entropy Loss} is applied in multi-class classification problems to quantify the divergence between predicted class probabilities and the actual class label.
-	      \[
-		      \mathcal{L}_{\text{CE}} = - \sum_{i=1}^{n} \sum_{c=1}^{C} y_{i,c} \log(\hat{y}_{i,c})
-	      \]
-	      where \( C \) is the number of classes, \( y_{i,c} \in \{0,1\} \) is the true label, and \( \hat{y}_{i,c} \) is the predicted probability for class \( c \).
-
-	\item \textbf{Hinge Loss}, leading to the canonical Support Vector Machines (SVMs), promotes a margin between classes to improve classification confidence.
-	      \[
-		      \mathcal{L}_{\text{Hinge}} = \frac{1}{n} \sum_{i=1}^{n} \max(0, 1 - y_i \hat{y}_i)
-	      \]
-	      where \( y_i \in \{-1, 1\} \) is the true class label, and \( \hat{y}_i \) is the predicted score.
-\end{itemize}
-
-\subsection*{Q: What is a ROC curve and what does AUC represent?}
-\textbf{ROC (Receiver Operating Characteristic) curve} illustrates the trade-off between the True Positive Rate (TPR, also known as recall) and the False Positive Rate (FPR) across various classification thresholds. It visualizes how well a binary classifier can distinguish between positive and negative classes at different decision boundaries. \\
-\textbf{AUC (Area Under the Curve)} is a scalar value that summarizes the overall performance of the model. It represents the probability that a randomly chosen positive example is ranked higher than a randomly chosen negative one. Interpretation of AUC values:
-\begin{itemize}
-	\item \textbf{1.0} — Perfect classification
-	\item \textbf{0.9–1.0} — Excellent performance
-	\item \textbf{0.8–0.9} — Good performance
-	\item \textbf{0.7–0.8} — Acceptable performance
-	\item \textbf{0.5} — No better than random guessing
-	\item \textbf{$<$ 0.5} — Worse than random (indicates a potential label inversion)
-\end{itemize}
-
-\subsection*{Q: What is a ROC curve and what does AUC represent?}
-\textbf{ROC (Receiver Operating Characteristic) curve} illustrates the trade-off between the True Positive Rate (TPR, also known as recall) and the False Positive Rate (FPR) across various classification thresholds. It visualizes how well a binary classifier can distinguish between positive and negative classes at different decision boundaries.
-
+\textbf{Mean Squared Error (MSE)}:
 \[
-	\text{TPR} = \frac{\text{TP}}{\text{TP} + \text{FN}} \quad \text{(True Positive Rate)}, \quad
-	\text{FPR} = \frac{\text{FP}}{\text{FP} + \text{TN}} \quad \text{(False Positive Rate)}
+\text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+\]
+Use for regression tasks. Penalizes large errors more heavily due to the squared term.
+
+\textbf{Binary Cross-Entropy (BCE)}:
+\[
+\text{BCE} = -\frac{1}{n} \sum_{i=1}^{n} [y_i \log(\hat{y}_i) + (1-y_i) \log(1-\hat{y}_i)]
+\]
+Use for binary classification. Combines logistic loss with binary labels.
+
+\textbf{Categorical Cross-Entropy}:
+\[
+\text{CCE} = -\frac{1}{n} \sum_{i=1}^{n} \sum_{c=1}^{C} y_{ic} \log(\hat{y}_{ic})
+\]
+Use for multi-class classification with \(C\) classes.
+
+\textbf{Hinge Loss}:
+\[
+\text{Hinge} = \frac{1}{n} \sum_{i=1}^{n} \max(0, 1 - y_i \hat{y}_i)
+\]
+Use for support vector machines and margin-based learning.
+
+\textbf{Focal Loss} (for imbalanced datasets):
+\[
+\text{Focal} = -\frac{1}{n} \sum_{i=1}^{n} \alpha_t (1-p_t)^\gamma \log(p_t)
+\]
+where \(\alpha_t\) is the class weight and \(\gamma\) controls focus on hard examples.
+
+\subsection*{Q: What is the bias-variance tradeoff?}
+The \textbf{bias-variance tradeoff} is a fundamental concept in machine learning that describes the relationship between a model's ability to capture the true underlying pattern in the data (bias) and its sensitivity to fluctuations in the training data (variance).
+
+\textbf{Mathematical formulation}:
+The expected prediction error can be decomposed as:
+\[
+\mathbb{E}[(y - \hat{f}(x))^2] = \text{Bias}^2[\hat{f}(x)] + \text{Var}[\hat{f}(x)] + \sigma^2
 \]
 
-Each point on the ROC curve corresponds to a different threshold used to convert predicted probabilities into class labels. \\ \\
-\textbf{AUC (Area Under the Curve)} is a scalar value that summarizes the overall performance of the model. It represents the probability that a randomly chosen positive example is ranked higher than a randomly chosen negative one.
+where:
+\begin{itemize}
+	\item \textbf{Bias}: \(\text{Bias}[\hat{f}(x)] = \mathbb{E}[\hat{f}(x)] - f(x)\) - systematic error due to model assumptions
+	\item \textbf{Variance}: \(\text{Var}[\hat{f}(x)] = \mathbb{E}[(\hat{f}(x) - \mathbb{E}[\hat{f}(x)])^2]\) - variability due to training data
+	\item \textbf{Irreducible error}: \(\sigma^2\) - noise inherent in the data
+\end{itemize}
 
+\textbf{High bias} (underfitting):
+\begin{itemize}
+	\item Model is too simple to capture the true relationship
+	\item High training and validation error
+	\item Examples: linear models for complex data
+\end{itemize}
+
+\textbf{High variance} (overfitting):
+\begin{itemize}
+	\item Model is too complex and fits noise in training data
+	\item Low training error, high validation error
+	\item Examples: very deep neural networks with small datasets
+\end{itemize}
+
+\textbf{Balancing strategies}:
+\begin{itemize}
+	\item \textbf{Regularization}: L1/L2 penalties, dropout
+	\item \textbf{Model complexity}: Adjust depth, width, polynomial degree
+	\item \textbf{Data augmentation}: Increase effective dataset size
+	\item \textbf{Ensemble methods}: Combine multiple models
+\end{itemize}
+
+\subsection*{Q: What is the ROC curve and how is it interpreted?}
+The \textbf{ROC (Receiver Operating Characteristic) curve} plots the True Positive Rate (TPR) against the False Positive Rate (FPR) at various classification thresholds. It provides a comprehensive view of a classifier's performance across all possible decision thresholds.
+
+\textbf{Key metrics}:
+\begin{itemize}
+	\item \textbf{True Positive Rate (TPR)}: \(\text{TPR} = \frac{\text{TP}}{\text{TP} + \text{FN}} = \text{Sensitivity} = \text{Recall}\)
+	\item \textbf{False Positive Rate (FPR)}: \(\text{FPR} = \frac{\text{FP}}{\text{FP} + \text{TN}} = 1 - \text{Specificity}\)
+	\item \textbf{Precision}: \(\text{Precision} = \frac{\text{TP}}{\text{TP} + \text{FP}}\)
+	\item \textbf{F1-Score}: \(\text{F1} = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}\)
+\end{itemize}
+
+\textbf{ROC curve interpretation}:
+\begin{itemize}
+	\item \textbf{Perfect classifier}: Curve goes through (0,1) - 100\% TPR, 0\% FPR
+	\item \textbf{Random classifier}: Diagonal line from (0,0) to (1,1) - AUC = 0.5
+	\item \textbf{Good classifier}: Curve above diagonal, closer to (0,1)
+	\item \textbf{Poor classifier}: Curve below diagonal, closer to (1,0)
+\end{itemize}
+
+\textbf{Area Under Curve (AUC)}:
 \[
-	\text{AUC} = \int_{0}^{1} \text{TPR}(\text{FPR}) \, d(\text{FPR})
+\text{AUC} = \int_0^1 \text{TPR}(t) \cdot \text{FPR}'(t) dt
 \]
-\\
-Interpretation of AUC values:
+where \(t\) is the threshold. AUC ranges from 0 to 1, with 1 being perfect.
+
+\textbf{Threshold selection}:
+The optimal threshold depends on the cost of false positives vs. false negatives:
+\[
+\text{Optimal threshold} = \arg\max_t \text{TPR}(t) - \alpha \cdot \text{FPR}(t)
+\]
+where \(\alpha\) reflects the relative cost of FPR vs. TPR.
+
+\subsection*{Q: What are the key metrics for recommendation systems?}
+Recommendation system evaluation requires multiple metrics to capture different aspects of performance:
+
+\textbf{Precision@k}: Fraction of recommended items that are relevant:
+\[
+\text{Precision@k} = \frac{|\text{Recommended}_k \cap \text{Relevant}|}{k}
+\]
+
+\textbf{Recall@k}: Fraction of relevant items that are recommended:
+\[
+\text{Recall@k} = \frac{|\text{Recommended}_k \cap \text{Relevant}|}{|\text{Relevant}|}
+\]
+
+\textbf{NDCG@k (Normalized Discounted Cumulative Gain)}:
+\[
+\text{DCG@k} = \sum_{i=1}^{k} \frac{2^{\text{rel}_i} - 1}{\log_2(i + 1)}
+\]
+\[
+\text{NDCG@k} = \frac{\text{DCG@k}}{\text{IDCG@k}}
+\]
+where \(\text{rel}_i\) is the relevance score and IDCG is the ideal DCG.
+
+\textbf{Hit Rate@k}: Whether at least one relevant item is in top-k:
+\[
+\text{Hit Rate@k} = \begin{cases}
+1 & \text{if } |\text{Recommended}_k \cap \text{Relevant}| > 0 \\
+0 & \text{otherwise}
+\end{cases}
+\]
+
+\textbf{MRR (Mean Reciprocal Rank)}: Average of reciprocal ranks of first relevant item:
+\[
+\text{MRR} = \frac{1}{|Q|} \sum_{q=1}^{|Q|} \frac{1}{\text{rank}_q}
+\]
+where \(\text{rank}_q\) is the rank of the first relevant item for query \(q\).
+
+\textbf{Coverage}: Fraction of items that can be recommended:
+\[
+\text{Coverage} = \frac{|\text{Items that can be recommended}|}{|\text{Total items}|}
+\]
+
+\textbf{Diversity}: Measures variety in recommendations:
+\[
+\text{Diversity} = \frac{1}{k(k-1)} \sum_{i \neq j} (1 - \text{sim}(i, j))
+\]
+where \(\text{sim}(i, j)\) is similarity between items \(i\) and \(j\).
+
+\textbf{Novelty}: Measures how surprising recommendations are:
+\[
+\text{Novelty} = \frac{1}{k} \sum_{i=1}^{k} -\log_2 P(i)
+\]
+where \(P(i)\) is the popularity of item \(i\).
+
+\subsection*{Q: What is model calibration and why is it important?}
+\textbf{Model calibration} ensures that predicted probabilities accurately reflect true probabilities. A well-calibrated model's predicted probability of 0.8 should correspond to approximately 80\% of such predictions being correct.
+
+\textbf{Calibration error} measures the difference between predicted and true probabilities:
+\[
+\text{Calibration Error} = \mathbb{E}[|\hat{P}(Y=1|X) - P(Y=1|X)|]
+\]
+
+\textbf{Reliability diagram} plots predicted probabilities vs. observed frequencies:
+\[
+\text{Observed Frequency} = \frac{1}{|B_i|} \sum_{x \in B_i} \mathbb{I}[y = 1]
+\]
+where \(B_i\) is the bin of predictions with similar probability values.
+
+\textbf{Calibration methods}:
+
+\textbf{Platt Scaling} (for binary classification):
+\[
+P_{\text{calibrated}}(Y=1|X) = \frac{1}{1 + \exp(-a \cdot \text{logit}(X) - b)}
+\]
+where \(a, b\) are learned parameters.
+
+\textbf{Isotonic Regression}:
+Fits a piecewise constant, monotonically increasing function to the reliability diagram.
+
+\textbf{Temperature Scaling} (for neural networks):
+\[
+P_{\text{calibrated}}(Y=1|X) = \text{softmax}\left(\frac{\text{logits}(X)}{T}\right)
+\]
+where \(T\) is the temperature parameter (learned or tuned).
+
+\textbf{Why calibration matters}:
 \begin{itemize}
-	\item \textbf{1.0} — Perfect classification
-	\item \textbf{0.9–1.0} — Excellent performance
-	\item \textbf{0.8–0.9} — Good performance
-	\item \textbf{0.7–0.8} — Acceptable performance
-	\item \textbf{0.5} — No better than random guessing
-	\item \textbf{$<$ 0.5} — Worse than random (indicates a potential label inversion)
+	\item \textbf{Decision making}: Calibrated probabilities enable proper risk assessment
+	\item \textbf{Ensemble methods}: Uncalibrated models can't be properly combined
+	\item \textbf{Business applications}: Accurate probability estimates are crucial for pricing, risk assessment
+	\item \textbf{Model interpretability}: Users can trust the probability outputs
 \end{itemize}
 
-\subsection*{Q: What are common evaluation metrics for recommendation systems?}
-Recommendation systems are typically evaluated using metrics that assess ranking quality, relevance, diversity, and user satisfaction. Commonly used evaluation metrics include:
+\subsection*{Q: What are advanced evaluation techniques for machine learning models?}
+Beyond basic metrics, several advanced techniques provide deeper insights:
 
+\textbf{Cross-validation strategies}:
 \begin{itemize}
-	\item \textbf{Precision@k}: Measures the proportion of relevant items in the top-\(k\) recommended results. It answers: "Out of the top-\(k\) items recommended, how many are relevant?"
-
-	\item \textbf{Recall@k}: Measures the proportion of relevant items that are successfully recommended in the top-\(k\). It answers: "Out of all relevant items, how many were retrieved?"
-
-	\item \textbf{NDCG@k (Normalized Discounted Cumulative Gain)}: Weights the relevance of recommended items based on their position in the ranked list. Higher-ranked relevant items contribute more to the score. This metric reflects the usefulness of the ranking order.
-
-	\item \textbf{Hit Rate@k}: A binary version of recall—it measures whether at least one relevant item appears in the top-\(k\) recommendations.
-
-	\item \textbf{Mean Reciprocal Rank (MRR)}: Computes the reciprocal of the rank of the first relevant item. A higher MRR indicates that relevant items tend to appear earlier in the list.
-
-	\item \textbf{Coverage}: Measures the proportion of all items that the system is capable of recommending. High coverage indicates a broader ability to make diverse recommendations.
-
-	\item \textbf{Diversity and Novelty}: These assess how varied and unexpected the recommendations are. High diversity improves user satisfaction by avoiding redundancy, while novelty introduces users to less familiar content.
-
-	\item \textbf{AUC (Area Under the ROC Curve)}: Measures the probability that a randomly chosen positive item is ranked higher than a randomly chosen negative item. It is used for binary relevance evaluations.
-
+	\item \textbf{Stratified K-fold}: Maintains class distribution in each fold
+	\item \textbf{Time series CV}: Respects temporal ordering in sequential data
+	\item \textbf{Nested CV}: Outer loop for model selection, inner loop for hyperparameter tuning
+	\item \textbf{Leave-one-out CV}: Uses all but one sample for training (computationally expensive)
 \end{itemize}
 
-Evaluation can be performed in both \textbf{offline} settings (e.g., using historical user-item interactions) and \textbf{online} settings (e.g., through A/B testing and user engagement metrics like click-through rate or dwell time).
+\textbf{Statistical significance testing}:
+\textbf{McNemar's test} for comparing two classifiers:
+\[
+\chi^2 = \frac{(|b - c| - 1)^2}{b + c}
+\]
+where \(b, c\) are off-diagonal elements of the confusion matrix.
+
+\textbf{Statistical significance} for multiple comparisons:
+\begin{itemize}
+	\item \textbf{Bonferroni correction}: \(\alpha_{\text{corrected}} = \frac{\alpha}{n}\)
+	\item \textbf{False Discovery Rate (FDR)}: Controls expected proportion of false discoveries
+\end{itemize}
+
+\textbf{Model interpretability techniques}:
+\begin{itemize}
+	\item \textbf{SHAP (SHapley Additive exPlanations)}: Game-theoretic approach to feature importance
+	\item \textbf{LIME (Local Interpretable Model-agnostic Explanations)}: Local linear approximations
+	\item \textbf{Integrated Gradients}: Axiomatic attribution for deep networks
+	\item \textbf{Attention visualization}: For transformer-based models
+\end{itemize}
+
+\textbf{Adversarial evaluation}:
+\begin{itemize}
+	\item \textbf{Adversarial examples}: Test robustness to small perturbations
+	\item \textbf{Data poisoning}: Evaluate resilience to malicious training data
+	\item \textbf{Membership inference}: Test privacy leakage
+\end{itemize}
+
+\textbf{Out-of-distribution detection}:
+\begin{itemize}
+	\item \textbf{Confidence calibration}: Well-calibrated models should have low confidence on OOD data
+	\item \textbf{Anomaly detection}: Identify inputs that differ from training distribution
+	\item \textbf{Uncertainty quantification}: Bayesian methods, ensemble variance
+\end{itemize}
+
+\textbf{Mathematical formulations}:
+
+\textbf{SHAP values}:
+\[
+\phi_i = \sum_{S \subseteq N \setminus \{i\}} \frac{|S|!(|N| - |S| - 1)!}{|N|!} [f(S \cup \{i\}) - f(S)]
+\]
+where \(N\) is the set of features and \(f(S)\) is the model output using features in set \(S\).
+
+\textbf{Integrated Gradients}:
+\[
+\text{IG}_i(x) = (x_i - x_i') \int_0^1 \frac{\partial f(\gamma(\alpha))}{\partial x_i} d\alpha
+\]
+where \(\gamma(\alpha)\) is the path from baseline \(x'\) to input \(x\).
+
+\subsection*{Q: How do you handle imbalanced datasets in evaluation?}
+\textbf{Imbalanced datasets} require special consideration in evaluation to avoid misleading metrics:
+
+\textbf{Problem with accuracy}:
+In highly imbalanced datasets (e.g., 99\% negative, 1\% positive), a naive classifier that always predicts the majority class achieves 99\% accuracy but has 0\% recall for the minority class.
+
+\textbf{Balanced metrics}:
+\begin{itemize}
+	\item \textbf{Balanced Accuracy}: \(\frac{\text{Sensitivity} + \text{Specificity}}{2}\)
+	\item \textbf{F1-Score}: Harmonic mean of precision and recall
+	\item \textbf{G-Mean}: \(\sqrt{\text{Sensitivity} \times \text{Specificity}}\)
+	\item \textbf{Cohen's Kappa}: Accounts for agreement by chance
+\end{itemize}
+
+\textbf{Mathematical formulations}:
+
+\textbf{Balanced Accuracy}:
+\[
+\text{Balanced Accuracy} = \frac{\text{TPR} + \text{TNR}}{2} = \frac{\text{TP}}{\text{TP} + \text{FN}} + \frac{\text{TN}}{\text{TN} + \text{FP}}
+\]
+
+\textbf{F1-Score}:
+\[
+\text{F1} = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}} = \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}}
+\]
+
+\textbf{G-Mean}:
+\[
+\text{G-Mean} = \sqrt{\text{Sensitivity} \times \text{Specificity}} = \sqrt{\frac{\text{TP}}{\text{TP} + \text{FN}} \times \frac{\text{TN}}{\text{TN} + \text{FP}}}
+\]
+
+\textbf{Cohen's Kappa}:
+\[
+\kappa = \frac{p_o - p_e}{1 - p_e}
+\]
+where \(p_o\) is observed agreement and \(p_e\) is expected agreement by chance.
+
+\textbf{Evaluation strategies}:
+\begin{itemize}
+	\item \textbf{Stratified sampling}: Ensure each fold has similar class distribution
+	\item \textbf{Class-weighted metrics}: Assign different costs to different classes
+	\item \textbf{Precision-Recall curves}: More informative than ROC for imbalanced data
+	\item \textbf{Threshold tuning}: Optimize for business-relevant metrics
+\end{itemize}
+
+\textbf{Business context}:
+The choice of evaluation metric should align with business objectives:
+\begin{itemize}
+	\item \textbf{Fraud detection}: High recall (catch most fraud) with acceptable precision
+	\item \textbf{Recommendation systems}: Balance precision and recall based on user experience
+	\item \textbf{Medical diagnosis}: High sensitivity (catch most cases) with high specificity (few false alarms)
+\end{itemize}
