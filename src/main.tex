@@ -2,7 +2,7 @@
 \usepackage{amsmath, amssymb}
 
 % Define document version command
-\newcommand{\docversion}{v0.2}
+\newcommand{\docversion}{v0.3}
 \usepackage[a4paper, total={6in, 8in}, margin=0.7in]{geometry}
 \usepackage{fancyhdr}
 \usepackage{graphicx}
@@ -59,7 +59,31 @@
 % -------------------
 \pagenumbering{arabic}
 
-\section{Model Training Fundamentals}
+\section{Problem Framing \& Core Principles}
+
+\subsection*{Q: What is the difference between MLE and MAP estimation?}
+\textbf{MLE} maximizes the likelihood of observing the given data. \textbf{MAP} includes priors to maximize posterior probability.
+
+\subsection*{Q: What is the difference between generative and discriminative models?}
+\textbf{Generative models} model the joint probability, \(P(x, y)\), to generate data. \textbf{Discriminative models} the conditional probability, \(P(y|x)\), to distinguish classes.
+
+\subsection*{Q: What is the bias-variance tradeoff in machine learning?}
+\begin{itemize}
+	\item \textbf{Bias} refers to the model's specificity, introduced by approximating a complex problem using a simplified model. High bias can cause a model to miss relevant patterns in the data, leading to underfitting.
+	\item \textbf{Variance} refers to the model's sensitivity (recall) to small fluctuations in the training data. A high-variance model captures noise along with the signal, leading to overfitting.
+	\item A model with high bias and low variance is too simple to capture the underlying structure of the data (underfitting), whereas a model with low bias and high variance captures noise and fails to generalize well (overfitting).
+\end{itemize}
+
+\section{Data \& Features}
+
+\subsection*{Q: What is a feature and what is a channel in the context of machine learning and deep learning?}
+\begin{itemize}
+	\item A \textbf{feature} generally refers to an individual, measurable property or characteristic extracted from raw data. Features serve as input signals that help a machine learning model learn patterns and make predictions or decisions.
+
+	\item A \textbf{channel}, in the context of deep learning—particularly convolutional neural networks (CNNs)—refers to the depth dimension of the input or output tensor. It corresponds to the number of filters or feature maps learned by a convolutional layer. For example, an RGB image has three channels (red, green, blue), and a CNN may produce dozens or hundreds of channels after processing.
+\end{itemize}
+
+\section{Learning \& Training Dynamics}
 
 \subsection*{Q: What is the role of Batch Normalization (BN) in training neural networks?}
 \textbf{Batch normalization} normalizes the input of each layer to have zero mean and unit variance across a mini-batch. This reduces internal co-variate shift (changes in the distribution of layer inputs during training), speeds up convergence, and stabilizes activation distributions and gradients.
@@ -91,22 +115,11 @@ During inference, batch normalization (BN) uses the running averages of the mean
 
 In summary, the choice of normalization method depends heavily on the task and batch size. For convolutional neural networks (CNNs) trained on large datasets like ImageNet, \textbf{BatchNorm} is the preferred choice. In scenarios with small batch sizes, such as object detection or segmentation, \textbf{GroupNorm} is typically more stable and effective. For natural language processing (NLP) and Transformer-based architectures, \textbf{LayerNorm} is widely used due to its batch-size independence. Finally, in style transfer or generative adversarial networks (GANs), \textbf{InstanceNorm} is favored for its ability to discard contrast and style-specific information.
 
-\subsection*{Q: What is a feature and what is a channel in the context of machine learning and deep learning?}
-\begin{itemize}
-	\item A \textbf{feature} generally refers to an individual, measurable property or characteristic extracted from raw data. Features serve as input signals that help a machine learning model learn patterns and make predictions or decisions.
-
-	\item A \textbf{channel}, in the context of deep learning—particularly convolutional neural networks (CNNs)—refers to the depth dimension of the input or output tensor. It corresponds to the number of filters or feature maps learned by a convolutional layer. For example, an RGB image has three channels (red, green, blue), and a CNN may produce dozens or hundreds of channels after processing.
-\end{itemize}
-
-\section{Optimization Algorithms}
-
 \subsection*{Q: What are the differences between SGD and Adam?}
 \textbf{SGD} uses a fixed or scheduled learning rate and is memory-efficient. \textbf{Adam} adapts learning rates for each parameter and converges faster but may overfit.
 
 \subsection*{Q: What is the role of momentum in SGD?}
 \textbf{Momentum} accumulates past gradients to smooth updates and accelerate convergence, especially in consistent gradient directions, and dampen oscillations caused by noisy gradients.
-
-\section{Regularization Techniques}
 
 \subsection*{Q: How can overfitting be reduced in machine learning models?}
 Techniques include collecting more data (e.g., data augmentation), regularization (e.g., weight decay, dropout, L1/L2 regularization), early stopping, learning rate scheduling, model simplification, and model ensembling.
@@ -122,7 +135,50 @@ A high dropout rate increases regularization, which may cause the model to under
 \subsection*{Q: Why does dropout improve generalization?}
 \textbf{Dropout} acts like training many sub-networks and adds noise to the training process, which reduces overfitting and improves generalization.
 
-\section{Loss Functions and Evaluation}
+\subsection*{Q: What are common activation functions and their pros/cons?}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{activation.png}
+	\caption{Source: \textit{https://blog.devops.dev/exploring-activation-functions-in-deep-learning-properties-derivatives-and-impact-on-model-7585aad8a757}.}
+\end{figure}
+
+\begin{itemize}
+	\item \textbf{Sigmoid}: The sigmoid function is easy to interpret as it outputs values in (0, 1), but it may suffer from the vanishing gradient problem, especially at extreme input values.
+	      \[
+		      \sigma(x) = \frac{1}{1 + e^{-x}}
+	      \]
+
+	\item \textbf{Tanh}: The tanh function is zero-centered and ranges (-1, 1), which can help with optimization, but like the sigmoid function, it also experiences vanishing gradients.
+	      \[
+		      \tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}
+	      \]
+
+	\item \textbf{ReLU}: The ReLU (Rectified Linear Unit) function is computationally efficient and helps create sparse representations, but it can suffer from the "dying ReLU" problem, where neurons become inactive.
+	      \[
+		      \text{ReLU}(x) = \max(0, x)
+	      \]
+
+	\item \textbf{Leaky ReLU}: The Leaky ReLU addresses the dying ReLU issue by allowing a small, non-zero gradient when the unit is not active, improving learning stability.
+	      \[
+		      \text{LeakyReLU}(x) =
+		      \begin{cases}
+			      x        & \text{if } x \geq 0 \\
+			      \alpha x & \text{if } x < 0
+		      \end{cases}
+	      \]
+	      where \( \alpha \) is a small positive constant (typically \( \alpha = 0.01 \)).
+
+	\item \textbf{Softmax}: The softmax function converts logits into a probability distribution over classes, making it suitable for multi-class classification problems.
+	      \[
+		      \text{Softmax}(z_i) = \frac{e^{z_i}}{\sum_{j=1}^{C} e^{z_j}}
+	      \]
+	      where \( z_i \) is the logit for class \( i \), and \( C \) is the number of classes.
+\end{itemize}
+
+\subsection*{Q: When should you use Sigmoid vs Softmax?}
+Use Sigmoid for binary or multi-label tasks. Use Softmax for mutually exclusive multi-class classification.
+
+\section{Evaluation, Calibration \& Decisioning}
 
 \subsection*{Q: What are commonly used loss functions in ML?}
 Commonly used loss functions in machine learning include the following:
@@ -187,56 +243,37 @@ Interpretation of AUC values:
 	\item \textbf{$<$ 0.5} — Worse than random (indicates a potential label inversion)
 \end{itemize}
 
-\section{Model Architectures}
+\subsection*{Q: What are common evaluation metrics for recommendation systems?}
+Recommendation systems are typically evaluated using metrics that assess ranking quality, relevance, diversity, and user satisfaction. Commonly used evaluation metrics include:
+
+\begin{itemize}
+	\item \textbf{Precision@k}: Measures the proportion of relevant items in the top-\(k\) recommended results. It answers: "Out of the top-\(k\) items recommended, how many are relevant?"
+
+	\item \textbf{Recall@k}: Measures the proportion of relevant items that are successfully recommended in the top-\(k\). It answers: "Out of all relevant items, how many were retrieved?"
+
+	\item \textbf{NDCG@k (Normalized Discounted Cumulative Gain)}: Weights the relevance of recommended items based on their position in the ranked list. Higher-ranked relevant items contribute more to the score. This metric reflects the usefulness of the ranking order.
+
+	\item \textbf{Hit Rate@k}: A binary version of recall—it measures whether at least one relevant item appears in the top-\(k\) recommendations.
+
+	\item \textbf{Mean Reciprocal Rank (MRR)}: Computes the reciprocal of the rank of the first relevant item. A higher MRR indicates that relevant items tend to appear earlier in the list.
+
+	\item \textbf{Coverage}: Measures the proportion of all items that the system is capable of recommending. High coverage indicates a broader ability to make diverse recommendations.
+
+	\item \textbf{Diversity and Novelty}: These assess how varied and unexpected the recommendations are. High diversity improves user satisfaction by avoiding redundancy, while novelty introduces users to less familiar content.
+
+	\item \textbf{AUC (Area Under the ROC Curve)}: Measures the probability that a randomly chosen positive item is ranked higher than a randomly chosen negative item. It is used for binary relevance evaluations.
+
+\end{itemize}
+
+Evaluation can be performed in both \textbf{offline} settings (e.g., using historical user-item interactions) and \textbf{online} settings (e.g., through A/B testing and user engagement metrics like click-through rate or dwell time).
+
+\section{Architectures, Adaptation \& Production}
 
 \subsection*{Q: How do Transformers differ from traditional Seq2Seq models?}
 \textbf{Transformers} use self-attention instead of recurrence, enabling parallelism and better modeling of long-range dependencies by self-attention and positional embeddings.
 
 \subsection*{Q: What are positional embeddings and why are they used in Transformers?}
 \textbf{Positional embeddings} encode token positions, which allows the transformer to maintain sequence order since self-attention lacks inherently order awareness, otherwise.
-
-\subsection*{Q: What are common activation functions and their pros/cons?}
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=0.8\textwidth]{activation.png}
-	\caption{Source: \textit{https://blog.devops.dev/exploring-activation-functions-in-deep-learning-properties-derivatives-and-impact-on-model-7585aad8a757}.}
-\end{figure}
-
-\begin{itemize}
-	\item \textbf{Sigmoid}: The sigmoid function is easy to interpret as it outputs values in (0, 1), but it may suffer from the vanishing gradient problem, especially at extreme input values.
-	      \[
-		      \sigma(x) = \frac{1}{1 + e^{-x}}
-	      \]
-
-	\item \textbf{Tanh}: The tanh function is zero-centered and ranges (-1, 1), which can help with optimization, but like the sigmoid function, it also experiences vanishing gradients.
-	      \[
-		      \tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}
-	      \]
-
-	\item \textbf{ReLU}: The ReLU (Rectified Linear Unit) function is computationally efficient and helps create sparse representations, but it can suffer from the "dying ReLU" problem, where neurons become inactive.
-	      \[
-		      \text{ReLU}(x) = \max(0, x)
-	      \]
-
-	\item \textbf{Leaky ReLU}: The Leaky ReLU addresses the dying ReLU issue by allowing a small, non-zero gradient when the unit is not active, improving learning stability.
-	      \[
-		      \text{LeakyReLU}(x) =
-		      \begin{cases}
-			      x        & \text{if } x \geq 0 \\
-			      \alpha x & \text{if } x < 0
-		      \end{cases}
-	      \]
-	      where \( \alpha \) is a small positive constant (typically \( \alpha = 0.01 \)).
-
-	\item \textbf{Softmax}: The softmax function converts logits into a probability distribution over classes, making it suitable for multi-class classification problems.
-	      \[
-		      \text{Softmax}(z_i) = \frac{e^{z_i}}{\sum_{j=1}^{C} e^{z_j}}
-	      \]
-	      where \( z_i \) is the logit for class \( i \), and \( C \) is the number of classes.
-\end{itemize}
-
-\subsection*{Q: When should you use Sigmoid vs Softmax?}
-Use Sigmoid for binary or multi-label tasks. Use Softmax for mutually exclusive multi-class classification.
 
 \subsection*{Q: What is Byte Pair Encoding (BPE) and why is it used?}
 \textbf{Byte Pair Encoding (BPE)} is a subword tokenization algorithm that decomposes text into units that strike a balance between individual characters and complete words. It begins by treating each character as a separate token and then iteratively merges the most frequent adjacent pairs of tokens into new combined tokens. This approach improves model performance by:
@@ -282,9 +319,6 @@ Several decoding techniques are used to generate text from large language models
 
 Multi-objective and multi-task learning algorithms are especially useful when tasks are related and can benefit from shared representations, improving generalization and model efficiency.
 
-
-\section{Fine-Tuning Techniques}
-
 \subsection*{Q: What is PEFT (Parameter-Efficient Fine-Tuning)?}
 \textbf{PEFT} fine-tunes only a subset of parameters, reducing memory and compute costs while preserving performance.
 
@@ -293,23 +327,6 @@ Multi-objective and multi-task learning algorithms are especially useful when ta
 
 \subsection*{Q: What is QLoRA and why is it useful?}
 \textbf{QLoRA} applies LoRA to the quantized models (e.g., 4-bit), enabling fine-tuning of large models on limited hardware. Once all the training is done, the original weights will be de-quantized.
-
-\section{Fundamental ML Concepts}
-
-\subsection*{Q: What is the difference between MLE and MAP estimation?}
-\textbf{MLE} maximizes the likelihood of observing the given data. \textbf{MAP} includes priors to maximize posterior probability.
-
-\subsection*{Q: What is the difference between generative and discriminative models?}
-\textbf{Generative models} model the joint probability, \(P(x, y)\), to generate data. \textbf{Discriminative models} the conditional probability, \(P(y|x)\), to distinguish classes.
-
-\subsection*{Q: What is the bias-variance tradeoff in machine learning?}
-\begin{itemize}
-	\item \textbf{Bias} refers to the model's specificity, introduced by approximating a complex problem using a simplified model. High bias can cause a model to miss relevant patterns in the data, leading to underfitting.
-	\item \textbf{Variance} refers to the model's sensitivity (recall) to small fluctuations in the training data. A high-variance model captures noise along with the signal, leading to overfitting.
-	\item A model with high bias and low variance is too simple to capture the underlying structure of the data (underfitting), whereas a model with low bias and high variance captures noise and fails to generalize well (overfitting).
-\end{itemize}
-
-\section{Recommender Systems}
 
 \subsection*{Q: What is collaborative filtering and what are its types?}
 \textbf{Collaborative filtering} recommends items based on user/item similarity. Types include user-based, item-based, and matrix factorization.
@@ -357,29 +374,5 @@ Several newer architectures have been proposed to address the limitations of the
 \end{itemize}
 
 These newer models improve retrieval accuracy by modeling cross-input interactions, at the cost of increased inference latency and system complexity.
-
-\subsection*{Q: What are common evaluation metrics for recommendation systems?}
-Recommendation systems are typically evaluated using metrics that assess ranking quality, relevance, diversity, and user satisfaction. Commonly used evaluation metrics include:
-
-\begin{itemize}
-	\item \textbf{Precision@k}: Measures the proportion of relevant items in the top-\(k\) recommended results. It answers: "Out of the top-\(k\) items recommended, how many are relevant?"
-
-	\item \textbf{Recall@k}: Measures the proportion of relevant items that are successfully recommended in the top-\(k\). It answers: "Out of all relevant items, how many were retrieved?"
-
-	\item \textbf{NDCG@k (Normalized Discounted Cumulative Gain)}: Weights the relevance of recommended items based on their position in the ranked list. Higher-ranked relevant items contribute more to the score. This metric reflects the usefulness of the ranking order.
-
-	\item \textbf{Hit Rate@k}: A binary version of recall—it measures whether at least one relevant item appears in the top-\(k\) recommendations.
-
-	\item \textbf{Mean Reciprocal Rank (MRR)}: Computes the reciprocal of the rank of the first relevant item. A higher MRR indicates that relevant items tend to appear earlier in the list.
-
-	\item \textbf{Coverage}: Measures the proportion of all items that the system is capable of recommending. High coverage indicates a broader ability to make diverse recommendations.
-
-	\item \textbf{Diversity and Novelty}: These assess how varied and unexpected the recommendations are. High diversity improves user satisfaction by avoiding redundancy, while novelty introduces users to less familiar content.
-
-	\item \textbf{AUC (Area Under the ROC Curve)}: Measures the probability that a randomly chosen positive item is ranked higher than a randomly chosen negative item. It is used for binary relevance evaluations.
-
-\end{itemize}
-
-Evaluation can be performed in both \textbf{offline} settings (e.g., using historical user-item interactions) and \textbf{online} settings (e.g., through A/B testing and user engagement metrics like click-through rate or dwell time).
 
 \end{document}
