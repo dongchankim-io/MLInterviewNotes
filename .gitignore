@@ -63,10 +63,6 @@ Thumbs.db
 # BibTeX
 *.bib.bak
 
-# Makefile
-Makefile
-makefile
-
 # Custom LaTeX classes and packages (if you have them)
 # *.cls
 # *.sty
