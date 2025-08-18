@@ -2,40 +2,40 @@
 
 \subsection*{\textcolor{primaryteal}{Q: What is the difference between MLE and MAP estimation?}}
 \begin{itemize}
-  \item \textbf{Maximum Likelihood Estimation (MLE)}: Maximizes the likelihood of observing the given data:
-    \[
-    \theta_{\text{MLE}} = \arg\max_{\theta} P(X|\theta)
-    \]
-  \item \textbf{Maximum A Posteriori (MAP)}: Includes prior knowledge to maximize posterior probability:
-    \[
-    \theta_{\text{MAP}} = \arg\max_{\theta} P(\theta|X) = \arg\max_{\theta} P(X|\theta)P(\theta)
-    \]
+	\item \textbf{Maximum Likelihood Estimation (MLE)}: Maximizes the likelihood of observing the given data:
+	      \[
+		      \theta_{\text{MLE}} = \arg\max_{\theta} P(X|\theta)
+	      \]
+	\item \textbf{Maximum A Posteriori (MAP)}: Includes prior knowledge to maximize posterior probability:
+	      \[
+		      \theta_{\text{MAP}} = \arg\max_{\theta} P(\theta|X) = \arg\max_{\theta} P(X|\theta)P(\theta)
+	      \]
 \end{itemize}
 
 \subsection*{\textcolor{primaryteal}{Q: What is the difference between generative and discriminative models?}}
 \begin{itemize}
-  \item \textbf{Generative Models}: Model the joint probability distribution $P(x, y)$ to generate data:
-    \[
-    P(x, y) = P(x|y)P(y)
-    \]
-    Examples: Naive Bayes, Gaussian Mixture Models, Hidden Markov Models
-  
-  \item \textbf{Discriminative Models}: Model the conditional probability $P(y|x)$ to distinguish classes:
-    \[
-    P(y|x) = \frac{P(x|y)P(y)}{P(x)}
-    \]
-    Examples: Logistic Regression, Support Vector Machines, Neural Networks
+	\item \textbf{Generative Models}: Model the joint probability distribution $P(x, y)$ to generate data:
+	      \[
+		      P(x, y) = P(x|y)P(y)
+	      \]
+	      Examples: Naive Bayes, Gaussian Mixture Models, Hidden Markov Models
+
+	\item \textbf{Discriminative Models}: Model the conditional probability $P(y|x)$ to distinguish classes:
+	      \[
+		      P(y|x) = \frac{P(x|y)P(y)}{P(x)}
+	      \]
+	      Examples: Logistic Regression, Support Vector Machines, Neural Networks
 \end{itemize}
 
 \subsection*{\textcolor{primaryteal}{Q: What is the bias-variance tradeoff in machine learning?}}
 The bias-variance tradeoff is a fundamental concept that describes the relationship between a model's complexity and its ability to generalize.
 
 \begin{itemize}
-  \item \textbf{Bias}: Refers to the model's specificity, introduced by approximating a complex problem using a simplified model. High bias can cause a model to miss relevant patterns in the data, leading to \textbf{underfitting}.
-  
-  \item \textbf{Variance}: Refers to the model's sensitivity to small fluctuations in the training data. A high-variance model captures noise along with the signal, leading to \textbf{overfitting}.
-  
-  \item \textbf{Tradeoff}: A model with high bias and low variance is too simple to capture the underlying structure of the data (underfitting), whereas a model with low bias and high variance captures noise and fails to generalize well (overfitting).
+	\item \textbf{Bias}: Refers to the model's specificity, introduced by approximating a complex problem using a simplified model. High bias can cause a model to miss relevant patterns in the data, leading to \textbf{underfitting}.
+
+	\item \textbf{Variance}: Refers to the model's sensitivity to small fluctuations in the training data. A high-variance model captures noise along with the signal, leading to \textbf{overfitting}.
+
+	\item \textbf{Tradeoff}: A model with high bias and low variance is too simple to capture the underlying structure of the data (underfitting), whereas a model with low bias and high variance captures noise and fails to generalize well (overfitting).
 \end{itemize}
 
 \textbf{Key Insight}: The goal is to find the optimal balance where the model has just enough complexity to capture the true underlying patterns without overfitting to noise in the training data.

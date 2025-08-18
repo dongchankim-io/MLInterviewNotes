@@ -5,10 +5,10 @@
 
 \textbf{Mathematical Formulation}: For a mini-batch $B$ of size $m$:
 \[
-\mu_B = \frac{1}{m} \sum_{i=1}^{m} x_i, \quad \sigma_B^2 = \frac{1}{m} \sum_{i=1}^{m} (x_i - \mu_B)^2
+	\mu_B = \frac{1}{m} \sum_{i=1}^{m} x_i, \quad \sigma_B^2 = \frac{1}{m} \sum_{i=1}^{m} (x_i - \mu_B)^2
 \]
 \[
-\hat{x}_i = \frac{x_i - \mu_B}{\sqrt{\sigma_B^2 + \epsilon}}, \quad y_i = \gamma \hat{x}_i + \beta
+	\hat{x}_i = \frac{x_i - \mu_B}{\sqrt{\sigma_B^2 + \epsilon}}, \quad y_i = \gamma \hat{x}_i + \beta
 \]
 where $\epsilon$ is a small constant for numerical stability, and $\gamma, \beta$ are learnable parameters.
 
@@ -17,7 +17,7 @@ BN restricts the distribution of outputs into the same fixed distribution (mean=
 
 \textbf{Parameter Learning}: The parameters $\gamma$ and $\beta$ are learned during training:
 \[
-\gamma = \text{Var}[x]^{1/2}, \quad \beta = \mathbb{E}[x]
+	\gamma = \text{Var}[x]^{1/2}, \quad \beta = \mathbb{E}[x]
 \]
 This allows the network to recover the original distribution if it's optimal for the task.
 
@@ -36,27 +36,27 @@ During inference, batch normalization (BN) uses the running averages of the mean
 
 \textbf{Running Statistics Update}: The running statistics are updated during training as:
 \[
-\mu_{\text{running}} \leftarrow \alpha \mu_{\text{running}} + (1-\alpha) \mu_B
+	\mu_{\text{running}} \leftarrow \alpha \mu_{\text{running}} + (1-\alpha) \mu_B
 \]
 \[
-\sigma^2_{\text{running}} \leftarrow \alpha \sigma^2_{\text{running}} + (1-\alpha) \sigma^2_B
+	\sigma^2_{\text{running}} \leftarrow \alpha \sigma^2_{\text{running}} + (1-\alpha) \sigma^2_B
 \]
 where $\alpha$ is typically 0.9 or 0.99.
 
 \subsection*{\textcolor{primaryteal}{Q: How do BatchNorm, LayerNorm, GroupNorm, and InstanceNorm compare?}}
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth]{norms.jpg}
+	\includegraphics[width=0.8\textwidth]{images/norms.jpg}
 	\caption{Source: \textit{https://www.geeksforgeeks.org/deep-learning/what-is-group-normalization/}}
 \end{figure}
 
 \begin{itemize}
 	\item \textbf{Batch Normalization (BatchNorm)}: BatchNorm normalizes inputs across the batch dimension for each feature channel. It works well with large batch sizes and helps stabilize and accelerate training, but it can perform poorly with small batches and behaves differently during inference.
-	
+
 	\item \textbf{Layer Normalization (LayerNorm)}: LayerNorm normalizes across all feature dimensions within a single data sample. It is independent of batch size (robust for small batches) and is commonly used in architectures like Transformers and RNNs, but it tends to be less effective in convolutional neural networks.
-	
+
 	\item \textbf{Group Normalization (GroupNorm)}: GroupNorm divides channels into smaller groups and normalizes within each group. It performs consistently regardless of batch size and is particularly effective for convolutional models, though it requires tuning the number of groups (e.g., num groups=32).
-	
+
 	\item \textbf{Instance Normalization (InstanceNorm)}: InstanceNorm normalizes each individual sample and channel across spatial dimensions. It is widely used in style transfer applications as it helps remove instance-specific contrast information, but it may hurt performance in classification tasks where style information is important.
 \end{itemize}
 
@@ -65,22 +65,22 @@ where $\alpha$ is typically 0.9 or 0.99.
 \subsection*{\textcolor{primaryteal}{Q: What are the differences between SGD and Adam?}}
 \textbf{SGD (Stochastic Gradient Descent)} uses a fixed or scheduled learning rate and is memory-efficient. The update rule is:
 \[
-\theta_{t+1} = \theta_t - \eta_t \nabla_\theta J(\theta_t)
+	\theta_{t+1} = \theta_t - \eta_t \nabla_\theta J(\theta_t)
 \]
 where $\eta_t$ is the learning rate at step $t$.
 
 \textbf{Adam (Adaptive Moment Estimation)} adapts learning rates for each parameter and converges faster but may overfit. It maintains exponential moving averages of gradients and squared gradients:
 \[
-m_t = \beta_1 m_{t-1} + (1-\beta_1) \nabla_\theta J(\theta_t)
+	m_t = \beta_1 m_{t-1} + (1-\beta_1) \nabla_\theta J(\theta_t)
 \]
 \[
-v_t = \beta_2 v_{t-1} + (1-\beta_2) (\nabla_\theta J(\theta_t))^2
+	v_t = \beta_2 v_{t-1} + (1-\beta_2) (\nabla_\theta J(\theta_t))^2
 \]
 \[
-\hat{m}_t = \frac{m_t}{1-\beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1-\beta_2^t}
+	\hat{m}_t = \frac{m_t}{1-\beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1-\beta_2^t}
 \]
 \[
-\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t
+	\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t
 \]
 
 \textbf{Key Insight}: Adam typically converges faster but may generalize less well than SGD with proper learning rate scheduling.
@@ -90,10 +90,10 @@ v_t = \beta_2 v_{t-1} + (1-\beta_2) (\nabla_\theta J(\theta_t))^2
 
 \textbf{Mathematical Formulation}: The momentum update rule is:
 \[
-v_{t+1} = \mu v_t - \eta \nabla_\theta J(\theta_t)
+	v_{t+1} = \mu v_t - \eta \nabla_\theta J(\theta_t)
 \]
 \[
-\theta_{t+1} = \theta_t + v_{t+1}
+	\theta_{t+1} = \theta_t + v_{t+1}
 \]
 where $\mu$ is the momentum coefficient (typically 0.9).
 
@@ -165,18 +165,133 @@ Dropout improves generalization through several mechanisms:
 \subsection*{\textcolor{primaryteal}{Q: What are common activation functions and when to use them?}}
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth]{activation.png}
+	\includegraphics[width=1\textwidth]{images/activation.png}
 	\caption{Common activation functions and their properties}
 \end{figure}
 
+\textbf{Mathematical Formulations (Chronological Evolution)}:
+
+\textbf{Sigmoid}: $\sigma(x) = \frac{1}{1 + e^{-x}}$
 \begin{itemize}
-	\item \textbf{Sigmoid}: Outputs values between 0 and 1, useful for binary classification
-	\item \textbf{Tanh}: Outputs values between -1 and 1, zero-centered, better for hidden layers
-	\item \textbf{ReLU}: Most popular, computationally efficient, helps with vanishing gradients
-	\item \textbf{Leaky ReLU}: Addresses dying ReLU problem by allowing small negative gradients
-	\item \textbf{Softmax}: Outputs probability distribution, used in multi-class classification
-	\item \textbf{GELU}: Smooth approximation of ReLU, used in modern architectures
-	\item \textbf{Swish}: Self-gated activation, often outperforms ReLU
+	\item Outputs values between 0 and 1, useful for binary classification
+	\item Derivative: $\sigma'(x) = \sigma(x)(1 - \sigma(x))$
+	\item Suffers from vanishing gradients for extreme values
+	\item Historical: One of the earliest activation functions, inspired by biological neurons
+\end{itemize}
+
+\textbf{Tanh}: $\tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}} = 2\sigma(2x) - 1$
+\begin{itemize}
+	\item Outputs values between -1 and 1, zero-centered, better for hidden layers
+	\item Derivative: $\tanh'(x) = 1 - \tanh^2(x)$
+	\item Better gradient flow than sigmoid due to zero-centering
+	\item Historical: Improved upon sigmoid by addressing the zero-centering issue
+\end{itemize}
+
+\textbf{Softmax}: $\text{softmax}(x_i) = \frac{e^{x_i}}{\sum_{j=1}^{n} e^{x_j}}$
+\begin{itemize}
+	\item Outputs probability distribution, used in multi-class classification
+	\item Ensures $\sum_{i=1}^{n} \text{softmax}(x_i) = 1$
+	\item Numerically stable when using log-space computation
+	\item Historical: Developed for multi-class classification and probability modeling
+\end{itemize}
+
+\textbf{ReLU}: $\text{ReLU}(x) = \max(0, x)$
+\begin{itemize}
+	\item Most popular, computationally efficient, helps with vanishing gradients
+	\item Derivative: $\text{ReLU}'(x) = \begin{cases} 1 & \text{if } x > 0 \\ 0 & \text{if } x \leq 0 \end{cases}$
+	\item Can suffer from "dying ReLU" problem: neurons that always output 0 due to negative inputs, becoming permanently inactive
+	\item Historical: Revolutionized deep learning by solving vanishing gradient problem
+\end{itemize}
+
+\textbf{Leaky ReLU}: $\text{LeakyReLU}(x) = \begin{cases} x & \text{if } x > 0 \\ \alpha x & \text{if } x \leq 0 \end{cases}$
+\begin{itemize}
+	\item Addresses dying ReLU problem by allowing small negative gradients
+	\item Derivative: $\text{LeakyReLU}'(x) = \begin{cases} 1 & \text{if } x > 0 \\ \alpha & \text{if } x \leq 0 \end{cases}$
+	\item Typical $\alpha = 0.01$
+	\item Historical: First attempt to fix the dying ReLU problem
+\end{itemize}
+
+\textbf{ELU}: $\text{ELU}(x) = \begin{cases} x & \text{if } x > 0 \\ \alpha(e^x - 1) & \text{if } x \leq 0 \end{cases}$
+\begin{itemize}
+	\item Smooth activation function that outputs negative values for negative inputs
+	\item Derivative: $\text{ELU}'(x) = \begin{cases} 1 & \text{if } x > 0 \\ \text{ELU}(x) + \alpha & \text{if } x \leq 0 \end{cases}$
+	\item Typical $\alpha = 1.0$, ensures output approaches $-\alpha$ for large negative inputs
+	\item Better gradient flow than ReLU and helps with vanishing gradients
+	\item Historical: Introduced smoothness and negative outputs to address ReLU limitations
+\end{itemize}
+
+\textbf{GELU}: $\text{GELU}(x) = x \cdot \Phi(x)$
+\begin{itemize}
+	\item Smooth approximation of ReLU, used in modern architectures
+	\item Where $\Phi(x)$ is the cumulative distribution function of standard normal
+	\item Approximated as: $\text{GELU}(x) \approx 0.5x(1 + \tanh(\sqrt{2/\pi}(x + 0.044715x^3)))$
+	\item Historical: Developed for transformer architectures, provides smooth gradients
+\end{itemize}
+
+\textbf{Swish}: $\text{Swish}(x) = x \cdot \sigma(x)$
+\begin{itemize}
+	\item Self-gated activation, often outperforms ReLU
+	\item Derivative: $\text{Swish}'(x) = \sigma(x) + x \cdot \sigma(x)(1 - \sigma(x))$
+	\item Smooth, non-monotonic function with learnable parameters
+	\item Historical: Discovered through automated search, showing better performance than ReLU
+\end{itemize}
+
+\textbf{GLU}: $\text{GLU}(x) = (W_1x + b_1) \odot \sigma(W_2x + b_2)$
+\begin{itemize}
+	\item Gated mechanism that controls information flow through the network
+	\item Where $\odot$ denotes element-wise multiplication (Hadamard product)
+	\item The gate $\sigma(W_2x + b_2)$ controls how much of $(W_1x + b_1)$ passes through
+	\item Used in transformer architectures and language models
+	\item Historical: Introduced gating mechanisms for better information control
+\end{itemize}
+
+\textbf{SwiGLU}: $\text{SwiGLU}(x) = (W_1x + b_1) \odot \text{Swish}(W_2x + b_2)$
+\begin{itemize}
+	\item Combines GLU with Swish activation for the gate
+	\item Mathematical formulation: $\text{SwiGLU}(x) = (W_1x + b_1) \odot (W_2x + b_2) \cdot \sigma(W_2x + b_2)$
+	\item Often outperforms standard GLU and is used in modern LLMs like PaLM and LLaMA
+	\item Provides better gradient flow and training stability than ReLU-based gates
+	\item Historical: Latest evolution, combining the best of GLU and Swish for modern LLMs
+\end{itemize}
+
+\subsection*{\textcolor{primaryteal}{Q: What are activation functions?}}
+\textbf{Activation functions} are non-linear transformations applied to the output of neurons in neural networks. They introduce non-linearity into the network, enabling it to learn complex patterns and relationships in data.
+
+\textbf{Key purposes}:
+\begin{itemize}
+	\item \textbf{Non-linearity}: Without activation functions, neural networks would only be able to represent linear transformations
+	\item \textbf{Gradient flow}: They control how gradients flow during backpropagation
+	\item \textbf{Output range}: They determine the range of values that neurons can output
+	\item \textbf{Feature learning}: Different activations help learn different types of features
+\end{itemize}
+
+\textbf{Mathematical role}: For a neuron with input $z$, the activation function $f$ produces output $a = f(z)$, where $f$ is typically differentiable to enable gradient-based learning.
+
+\subsection*{\textcolor{primaryteal}{Q: How to choose the right activation functions?}}
+\textbf{Choosing activation functions} depends on the specific task, network architecture, and training dynamics:
+
+\textbf{For hidden layers}:
+\begin{itemize}
+	\item \textbf{ReLU}: Default choice for most deep networks due to computational efficiency and good gradient flow
+	\item \textbf{Leaky ReLU/ELU}: Use when you want to avoid dying ReLU problem
+	\item \textbf{GELU/Swish}: Better for transformer architectures and when smooth gradients are important
+	\item \textbf{Tanh}: Good for RNNs and when you need bounded outputs
+\end{itemize}
+
+\textbf{For output layers}:
+\begin{itemize}
+	\item \textbf{Sigmoid}: Binary classification (outputs 0-1 probabilities)
+	\item \textbf{Softmax}: Multi-class classification (outputs probability distribution)
+	\item \textbf{Linear}: Regression tasks (unbounded outputs)
+	\item \textbf{ReLU}: When outputs should be non-negative
+\end{itemize}
+
+\textbf{Considerations}:
+\begin{itemize}
+	\item \textbf{Vanishing gradients}: Avoid sigmoid/tanh in deep networks
+	\item \textbf{Computational cost}: ReLU is fastest, GELU/Swish are more expensive
+	\item \textbf{Task requirements}: Match output range to task needs
+	\item \textbf{Architecture compatibility}: Some activations work better with specific architectures
 \end{itemize}
 
 \subsection*{\textcolor{primaryteal}{Q: When should you use Sigmoid vs Softmax?}}
@@ -228,7 +343,7 @@ Proper weight initialization is crucial for training deep networks:
 
 \textbf{Mathematical Formulation}: For a curriculum function \(c(t)\) that determines difficulty at step \(t\):
 \[
-\text{Difficulty}(t) = c(t) \cdot \text{MaxDifficulty}
+	\text{Difficulty}(t) = c(t) \cdot \text{MaxDifficulty}
 \]
 
 \textbf{Learning Rate Scheduling} adjusts the learning rate during training:

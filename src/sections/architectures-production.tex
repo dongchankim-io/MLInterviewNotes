@@ -22,10 +22,10 @@ Transformers address these limitations through:
 
 The original positional encoding uses sinusoidal functions:
 \[
-PE_{(pos, 2i)} = \sin\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)
+	PE_{(pos, 2i)} = \sin\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)
 \]
 \[
-PE_{(pos, 2i+1)} = \cos\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)
+	PE_{(pos, 2i+1)} = \cos\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)
 \]
 
 where \(pos\) is the position and \(i\) is the dimension. This encoding:
@@ -47,12 +47,12 @@ Self-attention computes attention scores between all pairs of positions in a seq
 
 \textbf{Query, Key, Value matrices}:
 \[
-Q = XW_Q, \quad K = XW_K, \quad V = XW_V
+	Q = XW_Q, \quad K = XW_K, \quad V = XW_V
 \]
 
 \textbf{Attention scores}:
 \[
-\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+	\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
 \]
 
 where \(d_k\) is the dimension of keys (typically \(d_k = d_{\text{model}}/h\) for \(h\) heads).
@@ -61,7 +61,7 @@ The scaling factor \(\frac{1}{\sqrt{d_k}}\) prevents the dot products from growi
 
 \textbf{Multi-head attention} allows the model to attend to different subspaces:
 \[
-\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h)W^O
+	\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h)W^O
 \]
 where each head computes attention in a different subspace.
 
@@ -86,7 +86,7 @@ The algorithm works as follows:
 
 \textbf{Tokenization process}:
 \[
-\text{Tokenize}(text) = \arg\min_{t_1, \ldots, t_n} \sum_{i=1}^{n} \text{Count}(t_i)
+	\text{Tokenize}(text) = \arg\min_{t_1, \ldots, t_n} \sum_{i=1}^{n} \text{Count}(t_i)
 \]
 where \(t_i\) are subword tokens and \(\text{Count}(t_i)\) is the frequency of token \(t_i\).
 
@@ -104,18 +104,18 @@ Several decoding techniques are used to generate text from large language models
 \textbf{Mathematical formulation}:
 For top-\(k\) sampling:
 \[
-P_{\text{top-k}}(x_i) = \begin{cases}
-\frac{P(x_i)}{\sum_{j \in \text{top-k}} P(x_j)} & \text{if } i \in \text{top-k} \\
-0 & \text{otherwise}
-\end{cases}
+	P_{\text{top-k}}(x_i) = \begin{cases}
+		\frac{P(x_i)}{\sum_{j \in \text{top-k}} P(x_j)} & \text{if } i \in \text{top-k} \\
+		0                                               & \text{otherwise}
+	\end{cases}
 \]
 
 For top-\(p\) sampling:
 \[
-P_{\text{top-p}}(x_i) = \begin{cases}
-\frac{P(x_i)}{\sum_{j \in V_p} P(x_j)} & \text{if } i \in V_p \\
-0 & \text{otherwise}
-\end{cases}
+	P_{\text{top-p}}(x_i) = \begin{cases}
+		\frac{P(x_i)}{\sum_{j \in V_p} P(x_j)} & \text{if } i \in V_p \\
+		0                                      & \text{otherwise}
+	\end{cases}
 \]
 where \(V_p\) is the smallest set such that \(\sum_{i \in V_p} P(x_i) \geq p\).
 
@@ -145,13 +145,13 @@ Multi-objective and multi-task learning algorithms are especially useful when ta
 \textbf{MMOE mathematical formulation}:
 For task \(k\), the output is:
 \[
-y_k = \sum_{i=1}^{n} g_k^i(x) \cdot f_i(x)
+	y_k = \sum_{i=1}^{n} g_k^i(x) \cdot f_i(x)
 \]
 where \(g_k^i(x)\) is the gating network output for expert \(i\) on task \(k\), and \(f_i(x)\) is the output of expert \(i\).
 
 The gating network uses softmax:
 \[
-g_k^i(x) = \frac{\exp(h_k^i(x))}{\sum_{j=1}^{n} \exp(h_k^j(x))}
+	g_k^i(x) = \frac{\exp(h_k^i(x))}{\sum_{j=1}^{n} \exp(h_k^j(x))}
 \]
 where \(h_k^i(x)\) is the logit for expert \(i\) on task \(k\).
 
@@ -168,13 +168,13 @@ where \(h_k^i(x)\) is the logit for expert \(i\) on task \(k\).
 \textbf{Mathematical formulation}:
 For input \(x\), the MoE output is:
 \[
-y = \sum_{i=1}^{n} g_i(x) \cdot f_i(x)
+	y = \sum_{i=1}^{n} g_i(x) \cdot f_i(x)
 \]
 where \(g_i(x)\) is the gating probability for expert \(i\), and \(f_i(x)\) is the output of expert \(i\).
 
 The gating network typically uses softmax:
 \[
-g_i(x) = \frac{\exp(h_i(x))}{\sum_{j=1}^{n} \exp(h_j(x))}
+	g_i(x) = \frac{\exp(h_i(x))}{\sum_{j=1}^{n} \exp(h_j(x))}
 \]
 where \(h_i(x)\) is the logit for expert \(i\).
 
@@ -200,17 +200,17 @@ Several variants of MoE have been developed for different use cases:
 \textbf{Sparse MoE} (most common in practice):
 Instead of using all experts, sparse MoE selects the top-k experts:
 \[
-g_i(x) = \begin{cases}
-\frac{\exp(h_i(x))}{\sum_{j \in \text{top-k}} \exp(h_j(x))} & \text{if } i \in \text{top-k} \\
-0 & \text{otherwise}
-\end{cases}
+	g_i(x) = \begin{cases}
+		\frac{\exp(h_i(x))}{\sum_{j \in \text{top-k}} \exp(h_j(x))} & \text{if } i \in \text{top-k} \\
+		0                                                           & \text{otherwise}
+	\end{cases}
 \]
 
 This reduces computation from \(O(n)\) to \(O(k)\) where \(k \ll n\).
 
 \textbf{Switch Transformers} use \(k=1\) (single expert per input), making them extremely efficient:
 \[
-y = f_{\arg\max_i h_i(x)}(x)
+	y = f_{\arg\max_i h_i(x)}(x)
 \]
 
 \subsection*{Q: How does routing work in MoE architectures?}
@@ -218,25 +218,25 @@ y = f_{\arg\max_i h_i(x)}(x)
 
 \textbf{Soft routing} (traditional MoE):
 \[
-g_i(x) = \text{softmax}(h_i(x))_i
+	g_i(x) = \text{softmax}(h_i(x))_i
 \]
 All experts contribute to the output, weighted by their gating probabilities.
 
 \textbf{Hard routing} (sparse MoE):
 \[
-g_i(x) = \begin{cases}
-1 & \text{if } i = \arg\max_j h_j(x) \\
-0 & \text{otherwise}
-\end{cases}
+	g_i(x) = \begin{cases}
+		1 & \text{if } i = \arg\max_j h_j(x) \\
+		0 & \text{otherwise}
+	\end{cases}
 \]
 Only the most relevant expert contributes to the output.
 
 \textbf{Top-k routing}:
 \[
-g_i(x) = \begin{cases}
-\frac{\exp(h_i(x))}{\sum_{j \in \text{top-k}} \exp(h_j(x))} & \text{if } i \in \text{top-k} \\
-0 & \text{otherwise}
-\end{cases}
+	g_i(x) = \begin{cases}
+		\frac{\exp(h_i(x))}{\sum_{j \in \text{top-k}} \exp(h_j(x))} & \text{if } i \in \text{top-k} \\
+		0                                                           & \text{otherwise}
+	\end{cases}
 \]
 The top-k experts contribute, weighted by their relative scores.
 
@@ -254,48 +254,48 @@ The top-k experts contribute, weighted by their relative scores.
 \textbf{Load balancing}:
 \begin{itemize}
 	\item \textbf{Problem}: Experts may receive very few inputs, leading to poor training
-	\item \textbf{Solutions}: 
-	\begin{itemize}
-		\item Auxiliary load balancing loss
-		\item Expert diversity regularization
-		\item Noise injection in routing
-		\item Expert dropout during training
-	\end{itemize}
+	\item \textbf{Solutions}:
+	      \begin{itemize}
+		      \item Auxiliary load balancing loss
+		      \item Expert diversity regularization
+		      \item Noise injection in routing
+		      \item Expert dropout during training
+	      \end{itemize}
 \end{itemize}
 
 \textbf{Routing collapse}:
 \begin{itemize}
 	\item \textbf{Problem}: Gating network may always select the same experts
 	\item \textbf{Solutions}:
-	\begin{itemize}
-		\item Entropy regularization on gating distribution
-		\item Expert diversity constraints
-		\item Curriculum learning for routing
-	\end{itemize}
+	      \begin{itemize}
+		      \item Entropy regularization on gating distribution
+		      \item Expert diversity constraints
+		      \item Curriculum learning for routing
+	      \end{itemize}
 \end{itemize}
 
 \textbf{Gradient flow}:
 \begin{itemize}
 	\item \textbf{Problem}: Gradients may not flow well through the routing mechanism
 	\item \textbf{Solutions}:
-	\begin{itemize}
-		\item Straight-through estimators
-		\item Gumbel-softmax for differentiable routing
-		\item REINFORCE for discrete routing
-	\end{itemize}
+	      \begin{itemize}
+		      \item Straight-through estimators
+		      \item Gumbel-softmax for differentiable routing
+		      \item REINFORCE for discrete routing
+	      \end{itemize}
 \end{itemize}
 
 \textbf{Mathematical formulations}:
 
 \textbf{Load balancing loss}:
 \[
-\mathcal{L}_{\text{load}} = \alpha \sum_{i=1}^{n} \left(\frac{1}{B} \sum_{b=1}^{B} g_i(x_b) - \frac{1}{n}\right)^2
+	\mathcal{L}_{\text{load}} = \alpha \sum_{i=1}^{n} \left(\frac{1}{B} \sum_{b=1}^{B} g_i(x_b) - \frac{1}{n}\right)^2
 \]
 where \(B\) is batch size and \(\alpha\) controls the strength of load balancing.
 
 \textbf{Expert diversity loss}:
 \[
-\mathcal{L}_{\text{diversity}} = \beta \sum_{i \neq j} \text{sim}(f_i, f_j)
+	\mathcal{L}_{\text{diversity}} = \beta \sum_{i \neq j} \text{sim}(f_i, f_j)
 \]
 where \(\text{sim}(f_i, f_j)\) measures similarity between expert outputs.
 
@@ -402,13 +402,13 @@ PEFT methods include:
 
 For a pre-trained weight matrix \(W_0 \in \mathbb{R}^{d \times k}\), LoRA parameterizes its change during adaptation as:
 \[
-W = W_0 + \Delta W = W_0 + BA
+	W = W_0 + \Delta W = W_0 + BA
 \]
 where \(B \in \mathbb{R}^{d \times r}\) and \(A \in \mathbb{R}^{r \times k}\) are low-rank matrices with rank \(r \ll \min(d, k)\).
 
 The forward pass becomes:
 \[
-h = Wx = W_0x + \Delta Wx = W_0x + BAx
+	h = Wx = W_0x + \Delta Wx = W_0x + BAx
 \]
 
 \textbf{Key advantages}:
@@ -457,24 +457,24 @@ For a weight matrix \(W\), NF4 quantization:
 
 \textbf{User-based CF} finds similar users and recommends items they liked:
 \[
-\text{sim}(u, v) = \frac{\sum_{i \in I_{uv}} (r_{ui} - \bar{r}_u)(r_{vi} - \bar{r}_v)}{\sqrt{\sum_{i \in I_{uv}} (r_{ui} - \bar{r}_u)^2} \sqrt{\sum_{i \in I_{uv}} (r_{vi} - \bar{r}_v)^2}}
+	\text{sim}(u, v) = \frac{\sum_{i \in I_{uv}} (r_{ui} - \bar{r}_u)(r_{vi} - \bar{r}_v)}{\sqrt{\sum_{i \in I_{uv}} (r_{ui} - \bar{r}_u)^2} \sqrt{\sum_{i \in I_{uv}} (r_{vi} - \bar{r}_v)^2}}
 \]
 where \(r_{ui}\) is user \(u\)'s rating for item \(i\), and \(I_{uv}\) is the set of items rated by both users.
 
 \textbf{Item-based CF} finds similar items and recommends them:
 \[
-\text{sim}(i, j) = \frac{\sum_{u \in U_{ij}} (r_{ui} - \bar{r}_i)(r_{uj} - \bar{r}_j)}{\sqrt{\sum_{u \in U_{ij}} (r_{ui} - \bar{r}_i)^2} \sqrt{\sum_{u \in U_{ij}} (r_{uj} - \bar{r}_j)^2}}
+	\text{sim}(i, j) = \frac{\sum_{u \in U_{ij}} (r_{ui} - \bar{r}_i)(r_{uj} - \bar{r}_j)}{\sqrt{\sum_{u \in U_{ij}} (r_{ui} - \bar{r}_i)^2} \sqrt{\sum_{u \in U_{ij}} (r_{uj} - \bar{r}_j)^2}}
 \]
 
 \textbf{Matrix Factorization} decomposes the rating matrix \(R \in \mathbb{R}^{m \times n}\) into:
 \[
-R \approx UV^T
+	R \approx UV^T
 \]
 where \(U \in \mathbb{R}^{m \times k}\) and \(V \in \mathbb{R}^{n \times k}\) are user and item latent factor matrices.
 
 The objective function is:
 \[
-\min_{U, V} \sum_{(u,i) \in \Omega} (r_{ui} - u_u^T v_i)^2 + \lambda(\|U\|_F^2 + \|V\|_F^2)
+	\min_{U, V} \sum_{(u,i) \in \Omega} (r_{ui} - u_u^T v_i)^2 + \lambda(\|U\|_F^2 + \|V\|_F^2)
 \]
 where \(\Omega\) is the set of observed ratings and \(\lambda\) is the regularization parameter.
 
@@ -490,7 +490,7 @@ where \(\Omega\) is the set of observed ratings and \(\lambda\) is the regulariz
 \textbf{Mathematical analysis}:
 For a user-item matrix with \(m\) users and \(n\) items, the sparsity is:
 \[
-\text{Sparsity} = 1 - \frac{|\Omega|}{mn}
+	\text{Sparsity} = 1 - \frac{|\Omega|}{mn}
 \]
 where \(|\Omega|\) is the number of observed interactions.
 
@@ -504,15 +504,15 @@ The similarity between the query and candidate embeddings is then computed—typ
 \textbf{Mathematical formulation}:
 For query \(q\) and candidate \(c\), the model computes:
 \[
-f_q(q) = \text{Tower}_q(q), \quad f_c(c) = \text{Tower}_c(c)
+	f_q(q) = \text{Tower}_q(q), \quad f_c(c) = \text{Tower}_c(c)
 \]
 \[
-\text{score}(q, c) = f_q(q)^T f_c(c)
+	\text{score}(q, c) = f_q(q)^T f_c(c)
 \]
 
 The model is trained using contrastive learning with negative sampling:
 \[
-\mathcal{L} = -\log \frac{\exp(\text{score}(q, c^+))}{\exp(\text{score}(q, c^+)) + \sum_{i=1}^{N} \exp(\text{score}(q, c_i^-))}
+	\mathcal{L} = -\log \frac{\exp(\text{score}(q, c^+))}{\exp(\text{score}(q, c^+)) + \sum_{i=1}^{N} \exp(\text{score}(q, c_i^-))}
 \]
 where \(c^+\) is a positive candidate and \(c_i^-\) are negative candidates.
 
@@ -555,3 +555,89 @@ These newer models improve retrieval accuracy by modeling cross-input interactio
 \end{itemize}
 
 The choice depends on the trade-off between accuracy and latency requirements in your specific use case.
+
+\subsection*{Q: Why use multi-task learning (MTL) in recommenders?}
+\textbf{Multi-task learning (MTL)} in recommenders addresses the fundamental challenge of jointly optimizing multiple outcomes that matter for business success. Recommenders must predict various user behaviors: CTR, dwell/watch time, add-to-cart, purchase, save/share, complaint/dismiss, and retention.
+
+MTL leverages shared structure to improve generalization and reduces serving cost by sharing embeddings and trunk layers while producing multiple task-specific heads. Compared with single-task models, MTL can better approximate user utility and long-term value while respecting important guardrails like content quality and safety.
+
+\subsection*{Q: Where does MTL fit in a modern recsys pipeline?}
+In the classic two-stage architecture---\textbf{candidate generation} $\rightarrow$ \textbf{ranking}---MTL is most often applied at the \textbf{ranking} stage to predict multiple behaviors per candidate. Sometimes a light MTL head is used in retrieval to bias toward high-value behaviors.
+
+Post-ranking (re-rank) may combine task predictions with constraints (diversity, fairness, supply/ads rules) before final slate construction. This multi-stage approach allows for efficient candidate filtering followed by sophisticated multi-objective optimization.
+
+\subsection*{Q: Which tasks would you predict, and how do you combine them into one score?}
+Typical prediction heads include \textbf{engagement} (click, dwell), \textbf{conversion} (add-to-cart, purchase), \textbf{quality/satisfaction} (like, not-interested), and \textbf{risk} (abuse/toxicity).
+
+\textbf{Fusion strategies} include learning a weighted combination, such as additive $S=\sum_k w_k \,\hat y_k$ or multiplicative $S=\prod_k \hat y_k^{\alpha_k}$. You can optionally learn these weights or use business priors and constraints. It's crucial to calibrate individual heads before fusion to keep the combined scores meaningful and interpretable.
+
+\subsection*{Q: How do you choose training windows and prevent leakage?}
+Use time-based splits (train on past window, validate/test on future) to reflect real-world deployment scenarios. Align label windows with outcome latency---for example, conversions typically trail clicks by several hours or days.
+
+Prevent leakage with point-in-time feature materialization (feature store time-travel), event-time joins, and \emph{no} future-derived statistics. This ensures that your model only uses information that would be available at prediction time.
+
+\subsection*{Q: What feature patterns matter for MTL rankers?}
+\textbf{User/context features} include recency-aware histories, session statistics, device/locale information, and temporal features. \textbf{Item features} encompass content attributes, seller/creator information, and quality signals.
+
+Sequence modeling (pooled, attention, or transformer encoders) over user/item histories is crucial. Share embeddings across tasks when ID spaces match to reduce computational cost and prevent overfitting.
+
+\subsection*{Q: What commonly goes wrong with the classic shared-bottom MTL?}
+\textbf{Negative transfer} occurs when tasks with weak or anti-correlation interfere with each other. Improvements in one head can hurt another, creating a \emph{seesaw effect} where overall performance doesn't improve despite individual task gains.
+
+Flat sharing often \emph{does not scale} as you add more tasks or increase task heterogeneity (e.g., short-term clicks vs. long-term value prediction). This motivates the need for more sophisticated sharing mechanisms.
+
+\subsection*{Q: Which static sharing baselines would you try before expert routing?}
+\textbf{Cross-stitch / Sluice} networks learn what to share versus what to keep separate between task towers. These provide strong baselines and are easy to reason about, making them excellent starting points before implementing more complex expert routing approaches.
+
+\subsection*{Q: How do Mixture-of-Experts (MoE) and MMoE help in recommendation MTL?}
+MoE and MMoE replace a single shared trunk with multiple \emph{experts}. Each task has a \textbf{gate} that softly routes inputs to experts, enabling input- and task-conditional sharing.
+
+For task $k$, the gate $g^{(k)}(x)=\mathrm{softmax}(W^{(k)}x)$ combines expert outputs $\{f_i(x)\}$ into $z^{(k)}=\sum_i g^{(k)}_i(x) f_i(x)$. Then a task-specific tower $q^{(k)}(z^{(k)})$ outputs the final prediction $\hat y_k$.
+
+\textbf{Key differences}: MoE uses a single gating network for all tasks, while MMoE uses task-specific gates $g^{(k)}(x)$ for each task $k$. This allows MMoE to learn task-specific routing patterns.
+
+Benefits include reduced interference between tasks, adaptive sharing by user/item segment (e.g., new users/items), and the ability to scale without exploding the model count.
+
+\subsection*{Q: What does PLE (Progressive Layered Extraction) add beyond MMoE?}
+PLE explicitly separates \textbf{shared experts} and \textbf{task-specific experts} and \emph{stacks} them in layers. Each layer's gates draw from both pools, creating a hierarchical structure.
+
+\textbf{Progressive mechanism}: At each layer $l$, the model computes $z^{(k)}_l = \sum_i g^{(k)}_{l,i}(x) f_{l,i}(x)$, where experts $f_{l,i}$ can be either shared or task-specific. Lower layers focus on shared representations, while higher layers progressively extract task-specific features.
+
+This approach progressively refines shared semantics at lower layers and specialization at higher layers, effectively mitigating seesaw effects as the number of tasks proliferates. PLE represents an evolution beyond MMoE by introducing explicit layering and progressive extraction.
+
+\subsection*{Q: How do you handle label imbalance and conflicting objectives?}
+Use per-task losses (BCE for binary heads, MSE for regressions) with \textbf{task weights} or advanced techniques like GradNorm/uncertainty weighting. Consider focal loss for extreme imbalance scenarios.
+
+\textbf{Task weighting strategies}:
+\begin{itemize}
+	\item \textbf{Static weights}: Manually set based on business priorities
+	\item \textbf{Dynamic weights}: Learn weights during training (e.g., GradNorm)
+	\item \textbf{Uncertainty weighting}: Weight by task uncertainty estimates
+\end{itemize}
+
+Down/upsample by task or apply temperature-scaled soft-parameters in fusion to avoid over-optimizing easy but less valuable heads. This ensures balanced training across all objectives.
+
+\subsection*{Q: How do you evaluate multi-task rankers offline and online?}
+\textbf{Offline evaluation} should report per-task metrics (AUC/PR for binary tasks, NDCG for ranking-quality, calibration metrics like ECE/Brier for auction/thresholding) and slate-aware metrics.
+
+\textbf{Additional offline considerations}:
+\begin{itemize}
+	\item \textbf{Task correlation analysis}: Measure how improvements in one task affect others
+	\item \textbf{Transfer learning evaluation}: Test generalization to new tasks
+	\item \textbf{Computational efficiency}: Measure inference latency and memory usage
+\end{itemize}
+
+\textbf{Online evaluation} involves defining an Overall Evaluation Criterion with \textbf{guardrails} (e.g., abuse rate, content quality), running interleaving experiments for fast reads, then conducting A/B tests with variance reduction techniques.
+
+\subsection*{Q: What are your deployment/cost tactics for MTL models at scale?}
+Keep embeddings shared across tasks; apply expert routing on a lower-dimensional shared representation for computational efficiency; quantize and distill heavy towers where possible.
+
+\textbf{SLO metrics} include:
+\begin{itemize}
+	\item \textbf{Latency}: P50, P95, P99 inference times per task
+	\item \textbf{Throughput}: Requests per second (RPS) per task
+	\item \textbf{Resource utilization}: GPU/CPU memory and compute usage
+	\item \textbf{Accuracy drift}: Monitor per-task performance degradation
+\end{itemize}
+
+Cache request-level features; set tight SLO budgets for each pipeline stage (features / retrieval / rank / post-rank); monitor head-wise drift and calibration in production to ensure model quality over time.
