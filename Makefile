@@ -14,6 +14,7 @@ help:
 
 # Build the document
 build:
+	@$(MAKE) clean
 	@$(MAKE) format
 	@echo "Building ML Technical Interview Notes..."
 	@echo "Version detected: $(shell grep '\\newcommand{\\docversion}' src/header.tex | sed 's/.*\\newcommand{\\docversion}{\([^}]*\)}.*/\1/')"

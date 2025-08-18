@@ -372,3 +372,62 @@ Beyond L1/L2 and dropout, several advanced regularization techniques exist:
 	\item Better handling of label noise
 	\item Reduced overfitting in deep networks
 \end{itemize}
+
+\subsection*{\textcolor{primaryteal}{Q: How do Precision-Recall curves and ROC curves compare, and when should each be used?}}
+\begin{center}
+	\includegraphics[width=0.6\textwidth]{images/pr_roc.png}
+\end{center}
+
+\textbf{Precision-Recall Curve}:
+Focus on the positive class performance and are more informative for imbalanced datasets. More sensitive to the positive class distribution.
+\begin{itemize}
+	\item \textbf{Precision}: $P = \frac{TP}{TP + FP}$ (positive predictive value)
+	\item \textbf{Recall}: $R = \frac{TP}{TP + FN}$ (sensitivity, true positive rate)
+	\item \textbf{F1-Score}: $F1 = 2 \cdot \frac{P \cdot R}{P + R}$ (harmonic mean)
+\end{itemize}
+
+\textbf{ROC Curve}:
+Show the trade-off between TPR and FPR across all thresholds. More stable and less sensitive to the positive class distribution.
+\begin{itemize}
+	\item \textbf{True Positive Rate (TPR)}: $TPR = \frac{TP}{TP + FN}$ (same as recall)
+	\item \textbf{False Positive Rate (FPR)}: $FPR = \frac{FP}{FP + TN}$
+	\item \textbf{AUC-ROC}: Area under the ROC curve, measures overall discriminative ability
+\end{itemize}
+
+\textbf{When to Use Each}:
+
+\textbf{Precision-Recall Curves are preferable when}:
+\begin{itemize}
+	\item \textbf{Class imbalance exists} (especially when negative class dominates)
+	\item \textbf{Positive class is rare} (e.g., fraud detection, medical diagnosis)
+	\item \textbf{False positives are costly} (e.g., spam detection, medical screening)
+	\item \textbf{You care about the positive class performance} more than overall accuracy
+\end{itemize}
+
+\textbf{ROC Curves are preferable when}:
+\begin{itemize}
+	\item \textbf{Classes are relatively balanced}
+	\item \textbf{You want to evaluate overall discriminative ability}
+	\item \textbf{Both false positives and false negatives have similar costs}
+	\item \textbf{You need a threshold-independent measure of performance}
+\end{itemize}
+
+\textbf{Imbalanced Dataset Considerations}:
+In highly imbalanced datasets where the negative class dominates (e.g., 95\% negative, 5\% positive):
+
+\begin{itemize}
+	\item \textbf{PR curves} provide more meaningful insights because they focus on the minority class
+	\item \textbf{ROC curves} can be misleading, showing good performance even when the model struggles with the positive class
+	\item \textbf{High precision} becomes crucial to avoid overwhelming users with false positives
+	\item \textbf{Recall} must be balanced against precision based on business requirements
+\end{itemize}
+
+\textbf{Practical Guidelines}:
+\begin{itemize}
+	\item \textbf{Use PR curves} for imbalanced datasets, rare event detection, and when positive class performance is critical
+	\item \textbf{Use ROC curves} for balanced datasets and when you need overall discriminative ability
+	\item \textbf{Always consider both} when evaluating models to get a complete picture
+	\item \textbf{Choose thresholds} based on business requirements (precision vs. recall trade-off)
+\end{itemize}
+
+

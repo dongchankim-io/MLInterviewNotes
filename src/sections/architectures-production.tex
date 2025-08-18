@@ -1,6 +1,10 @@
 \section{Architectures, Adaptation \& Production}
 
 \subsection*{Q: How do Transformers differ from traditional Seq2Seq models?}
+\begin{center}
+	\includegraphics[width=0.4\textwidth]{images/transformer_architecture.png}
+\end{center}
+
 \textbf{Transformers} use self-attention instead of recurrence, enabling parallelism and better modeling of long-range dependencies by self-attention and positional embeddings.
 
 Traditional Seq2Seq models (like LSTM-based) process sequences sequentially, making them:
@@ -20,7 +24,14 @@ Transformers address these limitations through:
 \subsection*{Q: What are positional embeddings and why are they used in Transformers?}
 \textbf{Positional embeddings} encode token positions, which allows the transformer to maintain sequence order since self-attention lacks inherently order awareness, otherwise.
 
-The original positional encoding uses sinusoidal functions:
+There are two main types of positional embeddings: Absolute and Relative.
+
+Absolute positional embedding, such as learned or sinusoidal positional embedding, uses a fixed positionnal embedding for each token. However, it suffers from the limited sequence length and the independence of positional embeddings.
+
+Relative positional embedding, such as RoPE, uses the relative distance between two positions to encode the positional information, enhancing the model's ability to understanding the relationship among tokens.
+
+Mathematical formulation:
+\textbf{Sinusoidal positional embedding}: Uses sinusoidal functions:
 \[
 	PE_{(pos, 2i)} = \sin\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)
 \]
@@ -28,42 +39,231 @@ The original positional encoding uses sinusoidal functions:
 	PE_{(pos, 2i+1)} = \cos\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)
 \]
 
-where \(pos\) is the position and \(i\) is the dimension. This encoding:
+where \(pos\) is the position and \(i\) is the dimension.
+
+On the other hand, \textbf{Rotary Positional Embedding (RoPE)} uses rotation mechanism to represent each token's position by a rotation in the embedding space:
+\[
+	\text{RoPE}(x_m, m) = x_m \cos(m\theta) + x_m^{\perp} \sin(m\theta)
+\]
+where \(\theta\) is a learned parameter and \(x_m^{\perp}\) is a rotated version of \(x_m\).
+
+
+\subsection*{Q: How do Transformers use positional embeddings in practice?}
+\textbf{Positional embeddings} are crucial for transformers to understand sequence order. Here's how they work in practice:
+
+\textbf{1. Integration with Token Embeddings}:
+Positional embeddings are added to token embeddings before feeding them into the transformer:
+\[
+	h_0 = \text{TokenEmbedding}(x) + \text{PositionalEmbedding}(pos)
+\]
+where \(h_0\) is the input to the first transformer layer, and \(pos\) is the token's position in the sequence.
+
+\textbf{2. Mathematical Properties of Sinusoidal PE}:
+The sinusoidal positional encoding has several key properties:
+
+\textbf{Relative Position Learning}:
+The model can learn relative positions through trigonometric identities:
+\[
+	PE_{(pos+k, 2i)} = PE_{(pos, 2i)} \cos\left(\frac{k}{10000^{2i/d_{\text{model}}}}\right) + PE_{(pos, 2i+1)} \sin\left(\frac{k}{10000^{2i/d_{\text{model}}}}\right)
+\]
+
+This allows the model to understand that "word at position 5" is 3 positions away from "word at position 2".
+
+\textbf{3. How Self-Attention Uses Positional Information}:
+When computing attention scores, the model can learn position-aware patterns:
+\[
+	\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{(Q + PE_Q)(K + PE_K)^T}{\sqrt{d_k}}\right)(V + PE_V)
+\]
+
+The positional embeddings influence attention weights, allowing the model to learn:
 \begin{itemize}
-	\item Allows the model to learn relative positions through trigonometric identities
-	\item Generalizes to sequence lengths not seen during training
-	\item Provides unique encoding for each position
+	\item \textbf{Local attention}: Nearby tokens often have higher attention scores
+	\item \textbf{Positional patterns}: Certain positions may be more important for specific tasks
+	\item \textbf{Sequential dependencies}: Order-dependent relationships between tokens
 \end{itemize}
 
-Alternative approaches include:
+\textbf{4. Practical Implementation Details}:
+
+\textbf{Maximum Sequence Length}:
+Transformers have a maximum sequence length they can handle:
 \begin{itemize}
-	\item \textbf{Learned positional embeddings}: Trainable parameters for each position
-	\item \textbf{Rotary Position Embedding (RoPE)}: Applies rotation matrices to token embeddings
-	\item \textbf{ALiBi}: Adds learned bias terms to attention scores
+	\item \textbf{Training}: Usually 512, 1024, or 2048 tokens
+	\item \textbf{Inference}: Can extend beyond training length with some methods
+	\item \textbf{Memory constraints}: Longer sequences require more memory for attention matrices
 \end{itemize}
 
-\subsection*{Q: What is the mathematical foundation of self-attention?}
-Self-attention computes attention scores between all pairs of positions in a sequence. Given input embeddings \(X \in \mathbb{R}^{n \times d}\), the attention mechanism computes:
+\textbf{Handling Variable Lengths}:
+\begin{itemize}
+	\item \textbf{Padding}: Shorter sequences are padded with special tokens
+	\item \textbf{Truncation}: Longer sequences are truncated to maximum length
+	\item \textbf{Chunking}: Very long sequences can be processed in chunks
+\end{itemize}
 
-\textbf{Query, Key, Value matrices}:
+\textbf{5. Alternative Positional Encoding Methods}:
+
+\textbf{Learned Positional Embeddings}:
+\[
+	PE_{pos} = W_{pos} \in \mathbb{R}^{d_{\text{model}}}
+\]
+where \(W_{pos}\) is a learnable parameter for each position.
+
+\textbf{Pros and Cons}:
+\begin{itemize}
+	\item \textbf{Pros}: Can learn optimal position representations for specific tasks
+	\item \textbf{Cons}: Fixed maximum length, doesn't generalize to longer sequences
+\end{itemize}
+
+\textbf{Rotary Position Embedding (RoPE)}:
+Applies rotation matrices to token embeddings based on position:
+\[
+	\text{RoPE}(x_m, m) = x_m \cos(m\theta) + x_m^{\perp} \sin(m\theta)
+\]
+where \(\theta\) is a learned parameter and \(x_m^{\perp}\) is a rotated version of \(x_m\).
+
+\textbf{ALiBi (Attention with Linear Biases)}:
+Adds learned bias terms to attention scores:
+\[
+	\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}} + B\right)V
+\]
+where \(B_{ij} = -m|i-j|\) and \(m\) is a learned slope parameter.
+
+\textbf{6. Why Positional Embeddings Matter}:
+
+\textbf{Without Positional Embeddings}:
+\begin{itemize}
+	\item The sentence "I love you" would be equivalent to "you love I"
+	\item Self-attention would treat all positions identically
+	\item The model couldn't learn sequential patterns
+\end{itemize}
+
+\textbf{With Positional Embeddings}:
+\begin{itemize}
+	\item Each position has a unique representation
+	\item The model can learn position-dependent patterns
+	\item Sequential relationships are preserved
+	\item Attention can focus on relevant positions
+\end{itemize}
+
+\textbf{7. Real-World Examples}:
+
+\textbf{Language Modeling}:
+\begin{itemize}
+	\item \textbf{Next word prediction}: Position helps understand context
+	\item \textbf{Sentence structure}: Grammar depends on word order
+	\item \textbf{Document understanding}: Position indicates document structure
+\end{itemize}
+
+\textbf{Machine Translation}:
+\begin{itemize}
+	\item \textbf{Word order differences}: Languages have different word orders
+	\item \textbf{Alignment}: Source and target positions need to be learned
+	\item \textbf{Context}: Position helps disambiguate meanings
+\end{itemize}
+
+\textbf{8. Challenges and Solutions}:
+
+\textbf{Length Generalization}:
+\begin{itemize}
+	\item \textbf{Problem}: Models trained on shorter sequences may not generalize to longer ones
+	\item \textbf{Solutions}:
+	      \begin{itemize}
+		      \item Use RoPE or ALiBi for better length generalization
+		      \item Train on variable-length sequences
+		      \item Use hierarchical positional encodings
+	      \end{itemize}
+\end{itemize}
+
+\textbf{Memory Efficiency}:
+\begin{itemize}
+	\item \textbf{Problem}: Long sequences require large attention matrices
+	\item \textbf{Solutions}:
+	      \begin{itemize}
+		      \item Sparse attention patterns
+		      \item Linear attention mechanisms
+		      \item Chunked processing
+	      \end{itemize}
+\end{itemize}
+
+\subsection*{Q: How does self-attention work?}
+\textbf{Self-attention} is a mechanism that allows models to focus on different parts of the input sequence when processing each element. It's the core innovation behind transformer architectures and enables parallel processing while capturing long-range dependencies.
+
+\textbf{Mathematical Formulation}:
+The self-attention mechanism computes attention scores and weighted outputs as follows:
+
+\textbf{1. Linear Transformations}:
+For input embeddings \(X \in \mathbb{R}^{n \times d}\), we create three matrices:
 \[
 	Q = XW_Q, \quad K = XW_K, \quad V = XW_V
 \]
+where \(W_Q, W_K, W_V \in \mathbb{R}^{d \times d_k}\) are learnable weight matrices, and \(d_k\) is the dimension of the key/query space.
 
-\textbf{Attention scores}:
+\textbf{2. Attention Scores}:
+The attention scores are computed as scaled dot-product attention:
 \[
 	\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
 \]
 
-where \(d_k\) is the dimension of keys (typically \(d_k = d_{\text{model}}/h\) for \(h\) heads).
-
 The scaling factor \(\frac{1}{\sqrt{d_k}}\) prevents the dot products from growing too large, which would push the softmax into regions with small gradients.
 
-\textbf{Multi-head attention} allows the model to attend to different subspaces:
+\textbf{3. Detailed Computation}:
+For each position \(i\), the output is:
+\[
+	\text{Output}_i = \sum_{j=1}^{n} \alpha_{ij} V_j
+\]
+where \(\alpha_{ij}\) is the attention weight from position \(i\) to position \(j\):
+\[
+	\alpha_{ij} = \frac{\exp\left(\frac{Q_i \cdot K_j^T}{\sqrt{d_k}}\right)}{\sum_{k=1}^{n} \exp\left(\frac{Q_i \cdot K_k^T}{\sqrt{d_k}}\right)}
+\]
+
+\textbf{Benefits of Self-Attention}:
+\begin{itemize}
+	\item \textbf{Parallelization}: All attention computations can be done simultaneously
+	\item \textbf{Long-range dependencies}: Can directly connect any two positions
+	\item \textbf{Interpretability}: Attention weights show what the model is focusing on
+	\item \textbf{Flexibility}: Can learn different types of relationships in different heads
+\end{itemize}
+
+\subsection*{Q: What are the roles of Query, Key, and Value in self-attention?}
+
+\textbf{Query (Q)} represents "what I'm looking for"; each query learns what information is needed for the current position.
+\textbf{Key (K)} represents "what I can offer"; each key learns how to represent its position's content.
+\textbf{Value (V)} represents "the actual information"; each value learns to represent information in a way that's useful for downstream tasks.
+
+\textbf{Why Three Separate Representations?}:
+\begin{itemize}
+	\item \textbf{Separation of concerns}: Query determines what to look for, Key determines relevance, Value provides the content
+	\item \textbf{Flexibility}: Different weight matrices allow learning different aspects of the input
+	\item \textbf{Interpretability}: Each representation can be analyzed separately to understand model behavior
+	\item \textbf{Multi-head attention}: Allows different heads to focus on different types of relationships
+\end{itemize}
+
+\subsection*{Q: What is multi-head attention?}
+
+\textbf{Multi-Head Attention}:
+Multi-head attention allows the model to attend to different subspaces simultaneously:
 \[
 	\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h)W^O
 \]
-where each head computes attention in a different subspace.
+where each head computes:
+\[
+	\text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)
+\]
+
+\textbf{Benefits of Multi-Head Attention}:
+\begin{itemize}
+	\item \textbf{Parallel Processing}: Multiple heads compute different relationships simultaneously
+	\item \textbf{Specialized Focus}: Each head learns different aspects (syntactic, semantic, positional, task-specific)
+	\item \textbf{Ensemble Effect}: Multiple perspectives provide robust understanding
+	\item \textbf{Subspace Diversity}: Each head operates in different learned subspaces
+	\item \textbf{Regularization}: Prevents overfitting to single attention patterns
+	\item \textbf{Interpretability}: Can analyze what each head attends to, enabling debugging and feature visualization
+\end{itemize}
+
+\textbf{Computational Complexity}:
+\begin{itemize}
+	\item \textbf{Time Complexity}: \(O(n^2 \cdot d)\) where \(n\) is sequence length, \(d\) is embedding dimension
+	\item \textbf{Space Complexity}: \(O(n^2)\) for storing attention matrices
+\end{itemize}
 
 \subsection*{Q: What is Byte Pair Encoding (BPE) and why is it used?}
 \textbf{Byte Pair Encoding (BPE)} is a subword tokenization algorithm that decomposes text into units that strike a balance between individual characters and complete words. It begins by treating each character as a separate token and then iteratively merges the most frequent adjacent pairs of tokens into new combined tokens. This approach improves model performance by:
@@ -95,9 +295,9 @@ Several decoding techniques are used to generate text from large language models
 
 \begin{itemize}
 	\item \textbf{Greedy Decoding}: This method selects the token with the highest probability at each step. While it is fast and deterministic, it often produces repetitive or suboptimal outputs because it doesn't explore alternative paths.
-	\item \textbf{Beam Search}: Beam search keeps track of the top \(k\) most probable sequences (beams) at each decoding step and expands them in parallel. It balances quality and computation by considering multiple candidates, but it can still produce generic responses and is less diverse than sampling-based methods.
-	\item \textbf{Top-\(k\) Sampling}: Instead of always choosing the most likely token, top-\(k\) sampling samples from the top \(k\) most probable next tokens. This introduces randomness and improves diversity, making outputs more creative and less deterministic.
-	\item \textbf{Top-\(p\) Sampling (Nucleus Sampling)}: This method selects from the smallest possible set of tokens whose cumulative probability exceeds a threshold \(p\) (e.g., 0.9). It adapts the candidate pool dynamically and often results in more coherent yet diverse outputs compared to top-\(k\) sampling.
+	\item \textbf{Beam Search}: Beam search keeps track of the top \(k\) most probable sequences (beams) at each decoding step and expands them in parallel. At the end the best sequence with the highest probability is selected. It balances quality and computation by considering multiple candidates, but it can still produce generic responses and is less diverse than sampling-based methods.
+	\item \textbf{Top-\(k\) Sampling}: Instead of always choosing the most likely token, top-\(k\) sampling samples a token from the top \(k\) most probable next tokens. This introduces randomness and improves diversity, making outputs more creative and less deterministic.
+	\item \textbf{Top-\(p\) Sampling (Nucleus Sampling)}: This method selects a token from the smallest possible set of tokens whose cumulative probability exceeds a threshold \(p\) (e.g., 0.9). It adapts the candidate pool dynamically and often results in more coherent yet diverse outputs compared to top-\(k\) sampling.
 	\item \textbf{Temperature Scaling}: Although not a decoding method itself, temperature is a parameter often used during sampling to control randomness. A lower temperature makes the model more confident (peaky distributions), while a higher temperature makes it more random and exploratory.
 \end{itemize}
 
@@ -118,6 +318,12 @@ For top-\(p\) sampling:
 	\end{cases}
 \]
 where \(V_p\) is the smallest set such that \(\sum_{i \in V_p} P(x_i) \geq p\).
+
+For beam search with beam size \(k\):
+\[
+	\text{Beam}_t = \arg\max_{S \in \text{Candidates}_t} P(S | x_1, \ldots, x_t)
+\]
+where \(\text{Candidates}_t\) contains the top \(k\) sequences at step \(t\).
 
 \subsection*{Q: What is MMOE and what are some other multi-objective learning algorithms?}
 \begin{itemize}
@@ -487,34 +693,10 @@ where \(\Omega\) is the set of observed ratings and \(\lambda\) is the regulariz
 	\item \textbf{Lack of contextual understanding}: Collaborative filtering does not typically incorporate side information such as time, location, or user demographics, which may be crucial for making context-aware recommendations.
 \end{itemize}
 
-\textbf{Mathematical analysis}:
-For a user-item matrix with \(m\) users and \(n\) items, the sparsity is:
-\[
-	\text{Sparsity} = 1 - \frac{|\Omega|}{mn}
-\]
-where \(|\Omega|\) is the number of observed interactions.
-
-When sparsity is high (e.g., >99\%), similarity computations become unreliable due to insufficient overlap between users/items.
-
 \subsection*{Q: What is the two-tower model?}
 The \textbf{two-tower model} is a neural architecture commonly used for tasks like recommendation, retrieval, and matching. It consists of two separate neural networks (or "towers")—one for encoding the query (e.g., user, question, search term) and one for encoding the candidate (e.g., item, product, document). Each tower processes its input independently to produce dense vector embeddings.
 
 The similarity between the query and candidate embeddings is then computed—typically using dot product or cosine similarity—to rank or retrieve relevant items. This architecture is efficient for large-scale retrieval since it allows for precomputing and indexing embeddings, enabling fast approximate nearest neighbor (ANN) search.
-
-\textbf{Mathematical formulation}:
-For query \(q\) and candidate \(c\), the model computes:
-\[
-	f_q(q) = \text{Tower}_q(q), \quad f_c(c) = \text{Tower}_c(c)
-\]
-\[
-	\text{score}(q, c) = f_q(q)^T f_c(c)
-\]
-
-The model is trained using contrastive learning with negative sampling:
-\[
-	\mathcal{L} = -\log \frac{\exp(\text{score}(q, c^+))}{\exp(\text{score}(q, c^+)) + \sum_{i=1}^{N} \exp(\text{score}(q, c_i^-))}
-\]
-where \(c^+\) is a positive candidate and \(c_i^-\) are negative candidates.
 
 Key advantages include:
 \begin{itemize}
@@ -556,32 +738,25 @@ These newer models improve retrieval accuracy by modeling cross-input interactio
 
 The choice depends on the trade-off between accuracy and latency requirements in your specific use case.
 
-\subsection*{Q: Why use multi-task learning (MTL) in recommenders?}
-\textbf{Multi-task learning (MTL)} in recommenders addresses the fundamental challenge of jointly optimizing multiple outcomes that matter for business success. Recommenders must predict various user behaviors: CTR, dwell/watch time, add-to-cart, purchase, save/share, complaint/dismiss, and retention.
+\subsection*{Q: What is multi-task learning (MTL) and why is it useful?}
+\textbf{Multi-task learning (MTL)} is a machine learning paradigm where a single model learns to perform multiple related tasks simultaneously. Instead of training separate models for each task, MTL leverages shared representations and knowledge transfer to improve performance across all tasks.
 
-MTL leverages shared structure to improve generalization and reduces serving cost by sharing embeddings and trunk layers while producing multiple task-specific heads. Compared with single-task models, MTL can better approximate user utility and long-term value while respecting important guardrails like content quality and safety.
+\textbf{Key Benefits}:
+\begin{itemize}
+	\item \textbf{Improved Generalization}: Shared representations help prevent overfitting and improve generalization
+	\item \textbf{Knowledge Transfer}: Knowledge learned for one task can benefit other related tasks
+	\item \textbf{Reduced Computational Cost}: Single model instead of multiple specialized models
+	\item \textbf{Better Feature Learning}: Shared layers can learn more robust and generalizable features
+	\item \textbf{Regularization Effect}: Multi-task objectives act as implicit regularization
+\end{itemize}
 
-\subsection*{Q: Where does MTL fit in a modern recsys pipeline?}
-In the classic two-stage architecture---\textbf{candidate generation} $\rightarrow$ \textbf{ranking}---MTL is most often applied at the \textbf{ranking} stage to predict multiple behaviors per candidate. Sometimes a light MTL head is used in retrieval to bias toward high-value behaviors.
-
-Post-ranking (re-rank) may combine task predictions with constraints (diversity, fairness, supply/ads rules) before final slate construction. This multi-stage approach allows for efficient candidate filtering followed by sophisticated multi-objective optimization.
-
-\subsection*{Q: Which tasks would you predict, and how do you combine them into one score?}
-Typical prediction heads include \textbf{engagement} (click, dwell), \textbf{conversion} (add-to-cart, purchase), \textbf{quality/satisfaction\
-	\
-} (like, not-interested), and \textbf{risk} (abuse/toxicity).
-
-\textbf{Fusion strategies} include learning a weighted combination, such as additive $S=\sum_k w_k \,\hat y_k$ or multiplicative $S=\prod_k \hat y_k^{\alpha_k}$. You can optionally learn these weights or use business priors and constraints. It's crucial to calibrate individual heads before fusion to keep the combined scores meaningful and interpretable.
-
-\subsection*{Q: How do you choose training windows and prevent leakage?}
-Use time-based splits (train on past window, validate/test on future) to reflect real-world deployment scenarios. Align label windows with outcome latency---for example, conversions typically trail clicks by several hours or days.
-
-Prevent leakage with point-in-time feature materialization (feature store time-travel), event-time joins, and \emph{no} future-derived statistics. This ensures that your model only uses information that would be available at prediction time.
-
-\subsection*{Q: What feature patterns matter for MTL rankers?}
-\textbf{User/context features} include recency-aware histories, session statistics, device/locale information, and temporal features. \textbf{Item features} encompass content attributes, seller/creator information, and quality signals.
-
-Sequence modeling (pooled, attention, or transformer encoders) over user/item histories is crucial. Share embeddings across tasks when ID spaces match to reduce computational cost and prevent overfitting.
+\textbf{Challenges}:
+\begin{itemize}
+	\item \textbf{Task Balancing}: Different tasks may have different scales or importance
+	\item \textbf{Negative Transfer}: Some tasks may interfere with each other
+	\item \textbf{Architecture Design}: Finding the right balance between shared and task-specific components
+	\item \textbf{Training Stability}: Managing gradients from multiple objectives
+\end{itemize}
 
 \subsection*{Q: What commonly goes wrong with the classic shared-bottom MTL?}
 \textbf{Negative transfer} occurs when tasks with weak or anti-correlation interfere with each other. Improvements in one head can hurt another, creating a \emph{seesaw effect} where overall performance doesn't improve despite individual task gains.
@@ -618,28 +793,3 @@ Use per-task losses (BCE for binary heads, MSE for regressions) with \textbf{tas
 \end{itemize}
 
 Down/upsample by task or apply temperature-scaled soft-parameters in fusion to avoid over-optimizing easy but less valuable heads. This ensures balanced training across all objectives.
-
-\subsection*{Q: How do you evaluate multi-task rankers offline and online?}
-\textbf{Offline evaluation} should report per-task metrics (AUC/PR for binary tasks, NDCG for ranking-quality, calibration metrics like ECE/Brier for auction/thresholding) and slate-aware metrics.
-
-\textbf{Additional offline considerations}:
-\begin{itemize}
-	\item \textbf{Task correlation analysis}: Measure how improvements in one task affect others
-	\item \textbf{Transfer learning evaluation}: Test generalization to new tasks
-	\item \textbf{Computational efficiency}: Measure inference latency and memory usage
-\end{itemize}
-
-\textbf{Online evaluation} involves defining an Overall Evaluation Criterion with \textbf{guardrails} (e.g., abuse rate, content quality), running interleaving experiments for fast reads, then conducting A/B tests with variance reduction techniques.
-
-\subsection*{Q: What are your deployment/cost tactics for MTL models at scale?}
-Keep embeddings shared across tasks; apply expert routing on a lower-dimensional shared representation for computational efficiency; quantize and distill heavy towers where possible.
-
-\textbf{SLO metrics} include:
-\begin{itemize}
-	\item \textbf{Latency}: P50, P95, P99 inference times per task
-	\item \textbf{Throughput}: Requests per second (RPS) per task
-	\item \textbf{Resource utilization}: GPU/CPU memory and compute usage
-	\item \textbf{Accuracy drift}: Monitor per-task performance degradation
-\end{itemize}
-
-Cache request-level features; set tight SLO budgets for each pipeline stage (features / retrieval / rank / post-rank); monitor head-wise drift and calibration in production to ensure model quality over time.
