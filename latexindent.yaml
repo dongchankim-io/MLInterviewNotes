@@ -11,10 +11,10 @@ logFilePreferences:
 indentPreamble:
   indentPreamble: 1
 
-# Line wrapping and spacing
+# Line wrapping and spacing - Enhanced to prevent long lines
 modifyLineBreaks:
   textWrapOptions:
-    columns: 80
+    columns: 72  # Reduced from 80 to prevent overfull hbox
     separator: " "
     separatorIndent: "  "
     beforeProcessing:

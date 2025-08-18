@@ -567,7 +567,9 @@ In the classic two-stage architecture---\textbf{candidate generation} $\rightarr
 Post-ranking (re-rank) may combine task predictions with constraints (diversity, fairness, supply/ads rules) before final slate construction. This multi-stage approach allows for efficient candidate filtering followed by sophisticated multi-objective optimization.
 
 \subsection*{Q: Which tasks would you predict, and how do you combine them into one score?}
-Typical prediction heads include \textbf{engagement} (click, dwell), \textbf{conversion} (add-to-cart, purchase), \textbf{quality/satisfaction} (like, not-interested), and \textbf{risk} (abuse/toxicity).
+Typical prediction heads include \textbf{engagement} (click, dwell), \textbf{conversion} (add-to-cart, purchase), \textbf{quality/satisfaction\
+	\
+} (like, not-interested), and \textbf{risk} (abuse/toxicity).
 
 \textbf{Fusion strategies} include learning a weighted combination, such as additive $S=\sum_k w_k \,\hat y_k$ or multiplicative $S=\prod_k \hat y_k^{\alpha_k}$. You can optionally learn these weights or use business priors and constraints. It's crucial to calibrate individual heads before fusion to keep the combined scores meaningful and interpretable.
 
