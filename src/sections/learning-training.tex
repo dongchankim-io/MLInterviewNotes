@@ -1,7 +1,7 @@
 \section{Learning \& Training Dynamics}
 
 \subsection*{\textcolor{primaryteal}{Q: What is the role of Batch Normalization (BN) in training neural networks?}}
-\textbf{Batch Normalization} normalizes the input of each layer to have zero mean and unit variance across a mini-batch. This reduces internal co-variate shift (changes in the distribution of layer inputs during training), speeds up convergence, and stabilizes activation distributions and gradients.
+\textbf{Batch Normalization} normalizes the input of each layer to have zero mean and unit variance across a mini-batch. This reduces internal co-variate shift (changes in the distribution of layer inputs during training caused by the changing distribution of the previous layers), speeds up convergence, and stabilizes activation distributions and gradients.
 
 \textbf{Mathematical Formulation}: For a mini-batch $B$ of size $m$:
 \[
@@ -109,7 +109,7 @@ where $\mu$ is the momentum coefficient (typically 0.9).
 Several advanced optimizers have been developed to address limitations of Adam:
 
 \begin{itemize}
-	\item \textbf{AdamW}: Decouples weight decay from gradient-based updates, leading to better generalization
+	\item \textbf{AdamW}: Decouples weight decay from gradient-based updates (directly shrinks the weights after each update), leading to better generalization
 	\item \textbf{RAdam}: Rectifies the variance of adaptive learning rates, providing more stable training
 	\item \textbf{Lion}: Uses sign-based updates with momentum, achieving competitive performance with fewer parameters
 	\item \textbf{AdaBelief}: Adapts step sizes based on belief in observed gradients, improving convergence
@@ -123,7 +123,7 @@ Overfitting occurs when a model learns the training data too well, including noi
 	\item \textbf{Early Stopping}: Monitoring validation performance and stopping when it degrades
 	\item \textbf{Data Augmentation}: Creating additional training examples through transformations
 	\item \textbf{Dropout}: Randomly deactivating neurons during training
-	\item \textbf{Cross-validation}: Using multiple train/validation splits
+	\item \textbf{Cross-validation}: Using multiple train/validation splits to train a set of models and then select the appropriate model by comparing with the average performance of the models
 \end{itemize}
 
 \subsection*{\textcolor{primaryteal}{Q: What is the difference between L1 and L2 regularization?}}
@@ -141,6 +141,45 @@ Both L1 and L2 regularization add penalty terms to prevent overfitting, but they
 	\item Prevents any weight from becoming too large
 	\item More robust to outliers
 	\item All features contribute to the model
+\end{itemize}
+
+\subsection*{\textcolor{primaryteal}{Q: What is weight decay and how does it differ from L2 regularization?}}
+\textbf{Weight decay} is a regularization technique that directly reduces the magnitude of weights during optimization, helping prevent overfitting by keeping weights small.
+
+\textbf{Mathematical Formulation}: Weight decay adds a penalty term to the loss function:
+\[
+	L_{\text{total}} = L_{\text{original}} + \frac{\lambda}{2} \sum_{i=1}^{n} w_i^2
+\]
+where $\lambda$ is the weight decay coefficient.
+
+\textbf{Key Differences from L2 Regularization}:
+\begin{itemize}
+	\item \textbf{Implementation}: Weight decay is typically implemented as a separate term in the optimizer, while L2 regularization is added to the loss function
+	\item \textbf{Effect on gradients}: Weight decay directly reduces weights after each update, while L2 regularization affects gradients during backpropagation
+	\item \textbf{Optimizer compatibility}: Weight decay works better with adaptive optimizers like Adam, while L2 regularization can interfere with their adaptive learning rates
+\end{itemize}
+
+\textbf{Benefits}:
+\begin{itemize}
+	\item \textbf{Better generalization}: Prevents weights from becoming too large
+	\item \textbf{Improved training stability}: Helps maintain reasonable weight magnitudes
+	\item \textbf{Reduced overfitting}: Limits model capacity effectively
+	\item \textbf{Optimizer compatibility}: Works well with modern adaptive optimizers
+\end{itemize}
+
+\textbf{Implementation in Different Optimizers}:
+\begin{itemize}
+	\item \textbf{SGD}: Weight decay is equivalent to L2 regularization
+	\item \textbf{Adam}: Weight decay is decoupled from gradient-based updates (AdamW)
+	\item \textbf{AdamW}: Implements weight decay correctly by applying it after the adaptive update
+\end{itemize}
+
+\textbf{Tuning Guidelines}:
+\begin{itemize}
+	\item \textbf{Typical values}: $\lambda$ ranges from $10^{-6}$ to $10^{-2}$
+	\item \textbf{Start small}: Begin with $10^{-4}$ and adjust based on validation performance
+	\item \textbf{Monitor overfitting}: Increase if training loss is much lower than validation loss
+	\item \textbf{Task-dependent}: Image classification typically uses $10^{-4}$, while language models may use $10^{-2}$
 \end{itemize}
 
 \subsection*{\textcolor{primaryteal}{Q: How does dropout work?}}

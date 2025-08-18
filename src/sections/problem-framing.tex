@@ -18,7 +18,7 @@
 	      \[
 		      P(x, y) = P(x|y)P(y)
 	      \]
-	      Examples: Naive Bayes, Gaussian Mixture Models, Hidden Markov Models
+	      Examples: Gaussian Mixture Models, Variational Autoencoders (VAE), Generative Adversarial Networks (GAN), Autoregressive Models, Diffusion Models
 
 	\item \textbf{Discriminative Models}: Model the conditional probability $P(y|x)$ to distinguish classes:
 	      \[
@@ -31,9 +31,9 @@
 The bias-variance tradeoff is a fundamental concept that describes the relationship between a model's complexity and its ability to generalize.
 
 \begin{itemize}
-	\item \textbf{Bias}: Refers to the model's specificity, introduced by approximating a complex problem using a simplified model. High bias can cause a model to miss relevant patterns in the data, leading to \textbf{underfitting}.
+	\item \textbf{Bias}: Refers to the model's specificity, measures how much the model's predictions deviate from the true value. High bias can cause a model to miss relevant patterns in the data, leading to \textbf{underfitting}.
 
-	\item \textbf{Variance}: Refers to the model's sensitivity to small fluctuations in the training data. A high-variance model captures noise along with the signal, leading to \textbf{overfitting}.
+	\item \textbf{Variance}: Refers to the model's sensitivity, measures how much the model's predictions change if trained on different subsets of the data. A high-variance model captures noise along with the signal, leading to \textbf{overfitting}.
 
 	\item \textbf{Tradeoff}: A model with high bias and low variance is too simple to capture the underlying structure of the data (underfitting), whereas a model with low bias and high variance captures noise and fails to generalize well (overfitting).
 \end{itemize}
